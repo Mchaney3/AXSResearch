@@ -9,6 +9,7 @@
 #define SOCKETIOCLIENT_H_
 
 #include "WebSockets.h"
+#include "WebSocketsClient.h"
 
 #define EIO_HEARTBEAT_INTERVAL 20000
 
@@ -74,6 +75,9 @@ class SocketIOclient : protected WebSocketsClient {
     bool send(socketIOmessageType_t type, char * payload, size_t length = 0, bool headerToPayload = false);
     bool send(socketIOmessageType_t type, const char * payload, size_t length = 0);
     bool send(socketIOmessageType_t type, String & payload);
+
+    void setExtraHeaders(const char * extraHeaders = NULL);
+    void setReconnectInterval(unsigned long time);
 
     void loop(void);
 

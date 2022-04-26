@@ -4,27 +4,28 @@
  */
 #include "Arduino_DataBus.h"
 
-#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#if defined(ESP32)
 
 #ifndef _ARDUINO_ESP32SPI_H_
 #define _ARDUINO_ESP32SPI_H_
 
 #include "soc/spi_struct.h"
-#if CONFIG_IDF_TARGET_ESP32C3
+#if CONFIG_IDF_TARGET_ESP32S3
+#include "driver/periph_ctrl.h"
+#elif CONFIG_IDF_TARGET_ESP32C3
+#include "driver/periph_ctrl.h"
 #include "esp32c3/rom/gpio.h"
+#include "soc/periph_defs.h"
 #else
 #include "soc/dport_reg.h"
 #endif
 
 #define SPI_MAX_PIXELS_AT_ONCE 32
 
-#if CONFIG_IDF_TARGET_ESP32
+#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
 #define MOSI_BIT_LEN _spi->dev->mosi_dlen.usr_mosi_dbitlen
 #define MISO_BIT_LEN _spi->dev->miso_dlen.usr_miso_dbitlen
-#elif CONFIG_IDF_TARGET_ESP32S2
-#define MOSI_BIT_LEN _spi->dev->mosi_dlen.usr_mosi_bit_len
-#define MISO_BIT_LEN _spi->dev->miso_dlen.usr_miso_bit_len
-#elif CONFIG_IDF_TARGET_ESP32C3
+#elif (CONFIG_IDF_TARGET_ESP32S3 || CONFIG_IDF_TARGET_ESP32C3)
 #define MOSI_BIT_LEN _spi->dev->ms_dlen.ms_data_bitlen
 #define MISO_BIT_LEN _spi->dev->ms_dlen.ms_data_bitlen
 #endif
@@ -33,9 +34,11 @@ class Arduino_ESP32SPI : public Arduino_DataBus
 {
 public:
 #if CONFIG_IDF_TARGET_ESP32
-  Arduino_ESP32SPI(int8_t dc = -1, int8_t cs = -1, int8_t sck = -1, int8_t mosi = -1, int8_t miso = -1, uint8_t spi_num = VSPI, bool is_shared_interface = true); // Constructor
+  Arduino_ESP32SPI(int8_t dc = GFX_NOT_DEFINED, int8_t cs = GFX_NOT_DEFINED, int8_t sck = GFX_NOT_DEFINED, int8_t mosi = GFX_NOT_DEFINED, int8_t miso = GFX_NOT_DEFINED, uint8_t spi_num = VSPI, bool is_shared_interface = true); // Constructor
+#elif CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3
+  Arduino_ESP32SPI(int8_t dc = GFX_NOT_DEFINED, int8_t cs = GFX_NOT_DEFINED, int8_t sck = GFX_NOT_DEFINED, int8_t mosi = GFX_NOT_DEFINED, int8_t miso = GFX_NOT_DEFINED, uint8_t spi_num = HSPI, bool is_shared_interface = true); // Constructor
 #else
-  Arduino_ESP32SPI(int8_t dc = -1, int8_t cs = -1, int8_t sck = -1, int8_t mosi = -1, int8_t miso = -1, uint8_t spi_num = FSPI, bool is_shared_interface = true); // Constructor
+  Arduino_ESP32SPI(int8_t dc = GFX_NOT_DEFINED, int8_t cs = GFX_NOT_DEFINED, int8_t sck = GFX_NOT_DEFINED, int8_t mosi = GFX_NOT_DEFINED, int8_t miso = GFX_NOT_DEFINED, uint8_t spi_num = FSPI, bool is_shared_interface = true); // Constructor
 #endif
 
   void begin(int32_t speed = 0, int8_t dataMode = SPI_MODE0) override;
@@ -94,4 +97,4 @@ private:
 
 #endif // _ARDUINO_ESP32SPI_H_
 
-#endif // #if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#endif // #if defined(ESP32)

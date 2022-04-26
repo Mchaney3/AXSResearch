@@ -27,7 +27,7 @@ Arduino_TFT::Arduino_TFT(
 
 void Arduino_TFT::begin(int32_t speed)
 {
-  if (_override_datamode >= 0)
+  if (_override_datamode != GFX_NOT_DEFINED)
   {
     _bus->begin(speed, _override_datamode);
   }
@@ -199,24 +199,21 @@ void Arduino_TFT::setRotation(uint8_t r)
   Arduino_GFX::setRotation(r);
   switch (_rotation)
   {
-  case 0:
-    _xStart = COL_OFFSET1;
-    _yStart = ROW_OFFSET1;
-    break;
-
   case 1:
     _xStart = ROW_OFFSET1;
     _yStart = COL_OFFSET2;
     break;
-
   case 2:
     _xStart = COL_OFFSET2;
     _yStart = ROW_OFFSET2;
     break;
-
   case 3:
     _xStart = ROW_OFFSET2;
     _yStart = COL_OFFSET1;
+    break;
+  default: // case 0:
+    _xStart = COL_OFFSET1;
+    _yStart = ROW_OFFSET1;
     break;
   }
   _currentX = 0xFFFF;
@@ -1068,8 +1065,15 @@ void Arduino_TFT::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
       endWrite();
     }
   }
-  else // 'Classic' built-in font
+  else // not gfxFont
 #endif // !defined(ATTINY_CORE)
+#if defined(U8G2_FONT_SUPPORT)
+      if (u8g2Font)
+  {
+    Arduino_GFX::drawChar(x, y, c, color, bg);
+  }
+  else // not u8g2Font
+#endif // defined(U8G2_FONT_SUPPORT)
   {
     block_w = 6 * textsize_x;
     block_h = 8 * textsize_y;
@@ -1085,11 +1089,6 @@ void Arduino_TFT::drawChar(int16_t x, int16_t y, unsigned char c, uint16_t color
     }
     else
     {
-      if (!_cp437 && (c >= 176))
-      {
-        c++; // Handle 'classic' charset behavior
-      }
-
       uint8_t col[5];
       for (int8_t i = 0; i < 5; i++)
       {

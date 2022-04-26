@@ -516,6 +516,9 @@ void WebSocketsServerCore::messageReceived(WSclient_t * client, WSopcode_t opcod
  * @param client WSclient_t *  ptr to the client struct contaning the native client "->tcp"
  */
 void WebSocketsServerCore::dropNativeClient(WSclient_t * client) {
+    if(!client) {
+        return;
+    }
     if(client->tcp) {
         if(client->tcp->connected()) {
 #if(WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP8266_ASYNC) && (WEBSOCKETS_NETWORK_TYPE != NETWORK_ESP32)
@@ -619,6 +622,10 @@ WSclient_t * WebSocketsServerCore::handleNewClient(WEBSOCKETS_NETWORK_CLASS * tc
 #else
         DEBUG_WEBSOCKETS("[WS-Server] no free space new client\n");
 #endif
+        // no client! => create dummy!
+        WSclient_t dummy = WSclient_t();
+        client           = &dummy;
+        client->tcp      = tcpClient;
         dropNativeClient(client);
     }
 
@@ -659,7 +666,7 @@ void WebSocketsServerCore::handleClientData(void) {
         if(clientIsConnected(client)) {
             int len = client->tcp->available();
             if(len > 0) {
-                //DEBUG_WEBSOCKETS("[WS-Server][%d][handleClientData] len: %d\n", client->num, len);
+                // DEBUG_WEBSOCKETS("[WS-Server][%d][handleClientData] len: %d\n", client->num, len);
                 switch(client->status) {
                     case WSC_HEADER: {
                         String headerLine = client->tcp->readStringUntil('\n');
@@ -713,7 +720,7 @@ void WebSocketsServerCore::handleHeader(WSclient_t * client, String * headerLine
             // cut URL out
             client->cUrl = headerLine->substring(4, headerLine->indexOf(' ', 4));
 
-            //reset non-websocket http header validation state for this client
+            // reset non-websocket http header validation state for this client
             client->cHttpHeadersValid      = true;
             client->cMandatoryHeadersCount = 0;
 

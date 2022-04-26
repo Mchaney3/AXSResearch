@@ -33,12 +33,15 @@ namespace lgfx
     , board_PyBadge
     , board_M5Tough
     , board_OpenCV
+    , board_FrameBuffer
     , board_M5Station
     , board_ESPboy
     , board_M5UnitLCD
     , board_M5UnitOLED
     , board_M5AtomDisplay
     , board_FeatherM4_HX8357
+    , board_ESP32_S3_BOX
+    , board_SDL
     };
   }
   using namespace boards;

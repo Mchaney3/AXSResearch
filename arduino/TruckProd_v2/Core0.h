@@ -43,7 +43,7 @@ void btTASK( void * pvParameters ){
   a2dp_sink.set_avrc_metadata_callback(avrc_metadata_callback);
   a2dp_sink.set_volume(85);
   a2dp_sink.set_bits_per_sample(32);
-  a2dp_sink.start(btDeviceName);
+  a2dp_sink.start("Back Yard");
   for(;;){
     delay(100);
   }

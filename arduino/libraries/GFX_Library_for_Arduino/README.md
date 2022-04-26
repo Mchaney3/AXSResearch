@@ -4,15 +4,13 @@ Arduino_GFX is a Arduino graphics library supporting various displays with vario
 
 This library start rewrite from Adafruit_GFX, LovyanGFX, TFT_eSPI, Ucglib, and more...
 
-## Various data bus interfaces
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/moononournation/Arduino_GFX)
+![GitHub Release Date](https://img.shields.io/github/release-date/moononournation/Arduino_GFX)
+![GitHub commits since latest release (by date)](https://img.shields.io/github/commits-since/moononournation/Arduino_GFX/latest)
+![GitHub last commit](https://img.shields.io/github/last-commit/moononournation/Arduino_GFX)
 
-Arduino_GFX utilize Arduino Built-in SPI class to support 8-bit SPI for most platform.
-
-Most tiny display in hobbiest electronics world support 8-bit SPI. But some requires 9-bit SPI. Arduino_GFX should be the first Arduino display library that can use ESP32 SPI to support 9-bit hardware SPI. 9-bit hardware SPI is important to support the displays that require 9-bit SPI interface. (e.g. HX8357B, ...)
-
-Larger display most likely not support standalone SPI since it is not fast enough to refresh the full screen details. Most of them support 8-bit/16-bit Parallel interface.
-
-Some larger display requires 3-bit SPI + RGB combo interface, i.e. requires more than 3 + 24 pins. Most dev board have not enough GPIO to support this. Arduino_GFX will finally support this combo interface but will be in very low priority. Huge monthly donation may make it happen :P
+![GitHub Sponsors](https://img.shields.io/github/sponsors/moononournation)
+![Twitter Follow](https://img.shields.io/twitter/follow/moononournation)
 
 ## Ease of use
 #### Simple Declaration
@@ -32,6 +30,76 @@ gfx->setTextColor(RED);
 gfx->println("Hello World!");
 ```
 
+## U8g2 Font Support
+[[U8g2](https://github.com/olikraus/u8g2.git)] proivided various font type and stored in compressed format. So U8g2 font gives more UI design possibilities and still can fit in the MCU limited storage space. Using U8g2 font in Arduino_GFX simply include U8g2lib.h before Arduino_GFX_Library.h:
+```
+#include <U8g2lib.h>
+#include <Arduino_GFX_Library.h>
+```
+And then setfont file to use:
+```
+gfx->setCursor(10, 20);
+gfx->setFont(u8g2_font_maniac_tr);
+gfx->println("Hello World!");
+```
+U8g2 font list can be found at: https://github.com/olikraus/u8g2/wiki/fntlistall
+
+### U8g2 Font UTF8 Support
+Another U8g2 font advantage is the font support Unicode glyphs. Simply enable setUTF8Print:
+```
+    gfx->begin();
+    gfx->fillScreen(BLACK);
+    gfx->setUTF8Print(true);
+```
+And then print UTF8 string as usual:
+```
+    gfx->setCursor(0, 16);
+
+    gfx->setFont(u8g2_font_unifont_tr);
+    gfx->println("Hello World!");
+
+    gfx->setFont(u8g2_font_unifont_t_polish);
+    gfx->println("Witaj świecie!");
+
+    gfx->setFont(u8g2_font_unifont_t_vietnamese1);
+    gfx->println("Chào thế giới!");
+
+    gfx->setFont(u8g2_font_unifont_t_chinese2);
+    gfx->println("世界你好!");
+
+    gfx->setFont(u8g2_font_unifont_t_japanese1);
+    gfx->println("こんにちは世界!");
+
+    gfx->setFont(u8g2_font_unifont_t_korean1);
+    gfx->println("안녕하세요, 세계입니다!");
+```
+U8g2 Unifont list can be found at: https://github.com/olikraus/u8g2/wiki/fntgrpunifont
+
+Besides U8g2 generated font, Arduino_GFX also generated some useful font set from latest [unifont_jp-14.0.02](http://unifoundry.com/pub/unifont/unifont-14.0.02/font-builds/unifont_jp-14.0.02.bdf.gz)]:
+
+#### u8g2_font_unifont_h_utf8
+ * Glyphs: 57389/57389
+ * Size: 2,250,360
+ * Generation script:
+```
+u8g2/tools/font/bdfconv/./bdfconv -v -f 1 -b 1 -m "0-1114111" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_h_utf8.h -n u8g2_font_unifont_h_utf8
+```
+
+#### u8g2_font_unifont_t_chinese
+ * Glyphs: 22145/57389
+ * Size: 1,024,137
+ * Generation script:
+```
+u8g2/tools/font/bdfconv/bdfconv -v -f 1 -b 1 -m "32-127,11904-12351,19968-40959,63744-64255,65280-65376" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_chinese.h -n u8g2_font_unifont_t_chinese
+```
+
+#### u8g2_font_unifont_t_cjk
+ * Glyphs: 41667/57389
+ * Size: 1,718,037
+ * Generation script:
+```
+ u8g2/tools/font/bdfconv/bdfconv -v -f 1 -m "32-127,4352-4607,11904-12255,12288-19903,19968-40943,43360-43391,44032-55203,55216-55295,63744-64255,65072-65103,65280-65519,110592-110959,127488-127743,131072-173791" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_cjk.h -n u8g2_font_unifont_t_cjk
+```
 
 ## Performance
 This library is not putting speed at the first priority, but still paid much effort to make the display look smooth.
@@ -69,6 +137,16 @@ Below are some figures compare with other 3 Arduino common display libraries.
 - No read operation. Since not all display provide read back graphic memories API, Arduino_GFX skip all read operations. It can reduce the library size footprint and sometimes reduce the operation time.
 - Tailor-made data bus classes. Arduino_GFX decouple data bus operation from display driver, it is more easy to write individual data bus class for each platform.
 
+## Various data bus interfaces
+
+Arduino_GFX utilizes Arduino Built-in SPI class to support 8-bit SPI for most platforms.
+
+Most tiny displays in hobbyist electronics world support 8-bit SPI, but some require 9-bit SPI. Arduino_GFX should be the first Arduino display library that can use ESP32 SPI to support 9-bit hardware SPI. It is important to support the displays that require 9-bit SPI interface. (e.g. HX8357B, ...)
+
+Larger displays most likely do not support standalone SPI since it is not fast enough to refresh the full screen details. Most of them support 8-bit/16-bit Parallel interface.
+
+Some larger display require 3-bit SPI + RGB combo interface, i.e. require more than 3 + 24 pins. Most dev board do not have enough GPIO to support this. Arduino_GFX will eventually support this combo interface but will be in very low priority. A huge monthly sponsor may make it happen :P
+
 ## Currently Supported data bus [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Data-Bus-Class)]
 - 8-bit and 9-bit hardware SPI (ESP32SPI)
 - 8-bit hardware SPI (HWSPI, ESP8266SPI, mbedSPI, NRFXSPI, RPiPicoSPI)
@@ -76,8 +154,9 @@ Below are some figures compare with other 3 Arduino common display libraries.
 - 8-bit parallel interface (AVRPAR8, ESP32PAR8, ESP32S2PAR8, RPiPicoPAR8, RTLPAR8)
 - 16-bit parallel interface (ESP32PAR16, ESP32S2PAR8, RPiPicoPAR16)
 
-## Tobe Support data bus (Donation can make it happen)
+## Tobe Support data bus (Sponsors can make it happen)
 - ESP32 I2S 8-bit/16-bit parallel interface
+- Arduino ATMega2560 dual 8-bit Port form 16-bit parallel interface
 - FastLED
 
 ## Currently Supported Dev Board
@@ -90,17 +169,20 @@ Below are some figures compare with other 3 Arduino common display libraries.
 - ESP32 Series
 - ESP32-C3 Series
 - ESP32-S2 Series
+- ESP32-S3 Series
 - Raspberry Pi Pico
 - rtlduino BW16 (by Ai-Thinker)
 - Sony Spresense
 - WeAct BlackPill V2.0 (BlackPill F411CE)
 
-## Tobe Support Dev Board (Donation can make it happen)
+## Tobe Support Dev Board (Sponsors can make it happen)
 - Arduino ATMega2560
 - ESP32-S3 Series
 
 ## Currently Supported Dev Device [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration)]
 - ESP32 LCDKIT
+- ESP32-S3-EYE
+- ESPboy [[demo video](https://youtu.be/Cx82XWrc8-0)]
 - Makerfabs ESP32 3.5" TFT Touch with Camera
 - TTGO T-DISPLAY
 - wireless-tag WT-32-SC01
@@ -146,7 +228,7 @@ Below are some figures compare with other 3 Arduino common display libraries.
 - ST7789 240x320 [[demo video](https://youtu.be/ZEvc1LkuVuQ)]
 - ST7796 320x480 [[demo video](https://youtu.be/hUL-RuG4MAQ)]
 
-## Tobe Support Display (Donation can make it happen)
+## Tobe Support Display (Sponsors can make it happen)
 - FastLED Martix supported by co-operate with Canvas
 - Mono display supported by co-operate with Canvas
 - Multi-color e-ink display supported by co-operate with Canvas
@@ -157,19 +239,26 @@ Below are some figures compare with other 3 Arduino common display libraries.
 - Canvas_3bit (1/4 memory space framebuffer)
 - Canvas_Mono (1/16 memory space framebuffer)
 
+## Feature wishlist (Sponsors can make it happen)
+- Print UTF8 Characters
+- Print color Emoji Characters
+- Load bitmap font files from flash / SD
+- Fill Gradient
+
 ## Using source code come from:
 - http://elm-chan.org/fsw/tjpgd/00index.html
 - https://github.com/adafruit/Adafruit-GFX-Library.git
 - https://github.com/adafruit/Adafruit_ILI9341.git
 - https://github.com/adafruit/Adafruit-SSD1351-library.git
 - https://github.com/ananevilya/Arduino-ST7789-Library.git
-- https://github.com/BasementCat/arduino-tft-gif
-- https://github.com/Bodmer/TFT_eSPI
-- https://github.com/daumemo/IPS_LCD_R61529_FT6236_Arduino_eSPI_Test
+- https://github.com/BasementCat/arduino-tft-gif.git
+- https://github.com/Bodmer/TFT_eSPI.git
+- https://github.com/daumemo/IPS_LCD_R61529_FT6236_Arduino_eSPI_Test.git
 - https://github.com/espressif/arduino-esp32.git
 - https://github.com/gitcnd/LCDWIKI_SPI.git
 - https://github.com/hi631/LCD_NT35510-MRB3971.git
 - https://github.com/lcdwiki/LCDWIKI_SPI.git
 - https://github.com/lovyan03/LovyanGFX.git
-- https://github.com/lovyan03/M5Stack_JpgLoopAnime
-- https://github.com/nopnop2002/esp-idf-parallel-tft
+- https://github.com/lovyan03/M5Stack_JpgLoopAnime.git
+- https://github.com/nopnop2002/esp-idf-parallel-tft.git
+- https://github.com/olikraus/u8g2.git

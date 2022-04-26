@@ -2,7 +2,7 @@
 // Copyright (c) 2017 Larry Bank
 // email: bitbank@pobox.com
 // Project started 5/15/2017
-//
+// 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
@@ -93,7 +93,8 @@ static int iHandle; // SPI handle
 #if !defined(HAL_ESP32_HAL_H_) && !defined(__SAMD51__) && !defined(ARDUINO_SAMD_ZERO) && !defined(ARDUINO_ARCH_RP2040)
 #define mySPI SPI
 #elif defined(ARDUINO_ARCH_RP2040)
-MbedSPI *pSPI = new MbedSPI(4,7,6); // use GPIO numbers, not pin #s
+MbedSPI *pSPI = new MbedSPI(12,11,13);
+//MbedSPI *pSPI = new MbedSPI(4,7,6); // use GPIO numbers, not pin #s
 #endif
 
 #include <Arduino.h>
@@ -142,7 +143,13 @@ static unsigned char *ucTXBuf;
 #ifdef __AVR__
 static unsigned char ucRXBuf[512];
 #else
-static unsigned char ucRXBuf[2048]; // ucRXBuf[4096];
+#ifdef ARDUINO_ARCH_RP2040
+// RP2040 somehow allocates this on an odd byte boundary if we don't
+// explicitly align the memory
+static unsigned char ucRXBuf[2048] __attribute__((aligned (16)));
+#else
+static unsigned char ucRXBuf[2048];
+#endif // RP2040
 #endif // __AVR__
 #endif // !ESP32
 #define LCD_DELAY 0xff
@@ -185,6 +192,24 @@ const unsigned char ucE0_0[] PROGMEM = {0x0F, 0x31, 0x2B, 0x0C, 0x0E, 0x08, 0x4E
 const unsigned char ucE1_0[] PROGMEM = {0x00, 0x0E, 0x14, 0x03, 0x11, 0x07, 0x31, 0xC1, 0x48, 0x08, 0x0F, 0x0C, 0x31, 0x36, 0x0F};
 const unsigned char ucE0_1[] PROGMEM = {0x1f, 0x1a, 0x18, 0x0a, 0x0f, 0x06, 0x45, 0x87, 0x32, 0x0a, 0x07, 0x02, 0x07, 0x05, 0x00};
 const unsigned char ucE1_1[] PROGMEM = {0x00, 0x25, 0x27, 0x05, 0x10, 0x09, 0x3a, 0x78, 0x4d, 0x05, 0x18, 0x0d, 0x38, 0x3a, 0x1f};
+// Table to convert a group of 4 1-bit pixels to a 2-bit gray level
+const uint8_t ucGray2BPP[256] PROGMEM =
+{   0x00,0x01,0x01,0x02,0x04,0x05,0x05,0x06,0x04,0x05,0x05,0x06,0x08,0x09,0x09,0x0a,
+0x01,0x02,0x02,0x02,0x05,0x06,0x06,0x06,0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,
+0x01,0x02,0x02,0x02,0x05,0x06,0x06,0x06,0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,
+0x02,0x02,0x02,0x03,0x06,0x06,0x06,0x07,0x06,0x06,0x06,0x07,0x0a,0x0a,0x0a,0x0b,
+0x04,0x05,0x05,0x06,0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,
+0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,
+0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,
+0x06,0x06,0x06,0x07,0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,
+0x04,0x05,0x05,0x06,0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,
+0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,
+0x05,0x06,0x06,0x06,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,
+0x06,0x06,0x06,0x07,0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,
+0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,0x08,0x09,0x09,0x0a,0x0c,0x0d,0x0d,0x0e,
+0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x0d,0x0e,0x0e,0x0e,
+0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x09,0x0a,0x0a,0x0a,0x0d,0x0e,0x0e,0x0e,
+0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,0x0a,0x0a,0x0a,0x0b,0x0e,0x0e,0x0e,0x0f};
 
 // small (8x8) font
 const uint8_t ucFont[]PROGMEM = {
@@ -2005,23 +2030,23 @@ int spilcdDrawTile(SPILCD *pLCD, int x, int y, int iTileWidth, int iTileHeight, 
     int i, j;
     uint32_t ul32;
     unsigned char *s, *d;
-    
-    if (iTileWidth*iTileHeight > 2048)
+    uint16_t *s16, *d16;
+
+    if (iTileWidth*iTileHeight > 2048) {
         return -1; // tile must fit in 4k SPI block size
-    
-        uint16_t *s16, *d16;
-        // First convert to big-endian order
-        d16 = (uint16_t *)ucRXBuf;
-        for (j=0; j<iTileHeight; j++)
+    }
+    // First convert to big-endian order
+    d16 = (uint16_t *)ucRXBuf;
+    for (j=0; j<iTileHeight; j++)
+    {
+        s16 = (uint16_t*)&pTile[j*iPitch];
+        for (i=0; i<iTileWidth; i++)
         {
-            s16 = (uint16_t*)&pTile[j*iPitch];
-            for (i=0; i<iTileWidth; i++)
-            {
-                *d16++ = __builtin_bswap16(*s16++);
-            } // for i;
-        } // for j
-        spilcdSetPosition(pLCD, x, y, iTileWidth, iTileHeight, iFlags);
-        myspiWrite(pLCD, ucRXBuf, iTileWidth*iTileHeight*2, MODE_DATA, iFlags);
+            *d16++ = __builtin_bswap16(*s16++);
+        } // for i;
+    } // for j
+    spilcdSetPosition(pLCD, x, y, iTileWidth, iTileHeight, iFlags);
+    myspiWrite(pLCD, ucRXBuf, iTileWidth*iTileHeight*2, MODE_DATA, iFlags);
     return 0;
 } /* spilcdDrawTile() */
 
@@ -2079,48 +2104,6 @@ int spilcdDrawSmallTile(SPILCD *pLCD, int x, int y, unsigned char *pTile, int iP
     myspiWrite(pLCD, ucTemp, 448, MODE_DATA, iFlags);
     return 0;
 } /* spilcdDrawSmallTile() */
-
-//
-// Draw a 16x16 RGB656 tile with select rows/columns removed
-// the mask contains 1 bit for every column/row that should be drawn
-// For example, to skip the first 2 columns, the mask value would be 0xfffc
-//
-int spilcdDrawMaskedTile(SPILCD *pLCD, int x, int y, unsigned char *pTile, int iPitch, int iColMask, int iRowMask, int iFlags)
-{
-    unsigned char ucTemp[512]; // fix the byte order first to write it more quickly
-    int i, j;
-    unsigned char *s, *d;
-    int iNumCols, iNumRows, iTotalSize;
-    
-    iNumCols = __builtin_popcount(iColMask);
-    iNumRows = __builtin_popcount(iRowMask);
-    iTotalSize = iNumCols * iNumRows * 2;
-    
-        uint16_t *s16 = (uint16_t *)s;
-        uint16_t u16, *d16 = (uint16_t *)d;
-        int iMask;
-        
-        // First convert to big-endian order
-        d16 = (uint16_t *)ucTemp;
-        for (j=0; j<16; j++)
-        {
-            if ((iRowMask & (1<<j)) == 0) continue; // skip row
-            s16 = (uint16_t *)&pTile[j*iPitch];
-            iMask = iColMask;
-            for (i=0; i<16; i++)
-            {
-                u16 = *s16++;
-                if (iMask & 1)
-                {
-                    *d16++ = __builtin_bswap16(u16);
-                }
-                iMask >>= 1;
-            } // for i;
-        } // for j
-        spilcdSetPosition(pLCD, x, y, iNumCols, iNumRows, iFlags);
-        myspiWrite(pLCD, ucTemp, iTotalSize, MODE_DATA, iFlags);
-    return 0;
-} /* spilcdDrawMaskedTile() */
 
 //
 // Draw a 16x16 tile as 16x13 (with priority to non-black pixels)
@@ -2508,6 +2491,14 @@ unsigned char buf[2];
     myspiWrite(pLCD, buf, 2, MODE_DATA, iFlags);
 
 } /* spilcdWriteData16() */
+//
+// Set the text cursor position in pixels
+//
+void spilcdSetCursor(SPILCD *pLCD, int x, int y)
+{
+    pLCD->iCursorX = x;
+    pLCD->iCursorY = y;
+} /* spilcdSetCursor() */
 
 //
 // Position the "cursor" to the given
@@ -2851,7 +2842,7 @@ uint32_t ulPixel, ulPixel2;
 // copy the edge pixels as-is
 // top+bottom lines first
 s = pSrc;
-s2 = &pSrc[(iHeight-1)*iSrcPitch];
+s2 = (unsigned short *)&pSrc[(iHeight-1)*iSrcPitch];
 d = (uint32_t *)pDest;
 d2 = (uint32_t *)&pDest[(iHeight-1)*2*iDestPitch];
 for (x=0; x<iWidth; x++)
@@ -2868,7 +2859,7 @@ for (x=0; x<iWidth; x++)
 }
 for (y=1; y<iHeight-1; y++)
   {
-  s = &pSrc[y * iSrcPitch];
+  s = (unsigned short *)&pSrc[y * iSrcPitch];
   d = (uint32_t *)&pDest[(y * 2 * iDestPitch)];
 // first pixel is just stretched
   ulPixel = *s++;
@@ -2911,7 +2902,142 @@ for (y=1; y<iHeight-1; y++)
   d[iDestPitch/2] = ulPixel;
   } // for y
 } /* SmoothImg() */
+//
+// Width is the doubled pixel width
+// Convert 1-bpp into 2-bit grayscale
+//
+static void Scale2Gray(uint8_t *source, int width, int iPitch)
+{
+    int x;
+    uint8_t ucPixels, c, d, *dest;
 
+    dest = source; // write the new pixels over the old to save memory
+
+    for (x=0; x<width/8; x+=2) /* Convert a pair of lines to gray */
+    {
+        c = source[x];  // first 4x2 block
+        d = source[x+iPitch];
+        /* two lines of 8 pixels are converted to one line of 4 pixels */
+        ucPixels = (ucGray2BPP[(unsigned char)((c & 0xf0) | (d >> 4))] << 4);
+        ucPixels |= (ucGray2BPP[(unsigned char)((c << 4) | (d & 0x0f))]);
+        *dest++ = ucPixels;
+        c = source[x+1];  // next 4x2 block
+        d = source[x+iPitch+1];
+        ucPixels = (ucGray2BPP[(unsigned char)((c & 0xf0) | (d >> 4))])<<4;
+        ucPixels |= ucGray2BPP[(unsigned char)((c << 4) | (d & 0x0f))];
+        *dest++ = ucPixels;
+    }
+    if (width & 4) // 2 more pixels to do
+    {
+        c = source[x];
+        d = source[x + iPitch];
+        ucPixels = (ucGray2BPP[(unsigned char) ((c & 0xf0) | (d >> 4))]) << 4;
+        ucPixels |= (ucGray2BPP[(unsigned char) ((c << 4) | (d & 0x0f))]);
+        dest[0] = ucPixels;
+    }
+} /* Scale2Gray() */
+//
+// Draw a string of characters in a custom font antialiased
+// at 1/2 its original size
+// A back buffer must be defined
+//
+int spilcdWriteStringAntialias(SPILCD *pLCD, GFXfont *pFont, int x, int y, char *szMsg, uint16_t usFGColor, uint16_t usBGColor, int iFlags)
+{
+int i, end_y, cx, dx, dy, tx, ty, c, iBitOff;
+uint8_t *s, *d, bits, ucMask, ucClr, uc;
+GFXfont font;
+GFXglyph glyph, *pGlyph;
+const uint32_t ulClrMask = 0x07E0F81F;
+uint32_t ulFG, ulBG;
+uint8_t ucTemp[64]; // enough space for a 256 pixel wide font
+uint16_t usTemp[128];
+    
+   if (pLCD == NULL || pFont == NULL)
+      return -1;
+    if (x == -1)
+        x = pLCD->iCursorX;
+    if (y == -1)
+        y = pLCD->iCursorY;
+    if (x < 0)
+        return -1;
+    // Prepare the foreground and background colors for alpha calculations
+    ulFG = usFGColor | ((uint32_t)usFGColor << 16);
+    ulBG = usBGColor | ((uint32_t)usBGColor << 16);
+    ulFG &= ulClrMask; ulBG &= ulClrMask;
+   // in case of running on Harvard CPU, get copy of data from FLASH
+   memcpy_P(&font, pFont, sizeof(font));
+   pGlyph = &glyph;
+
+   i = 0;
+   while (szMsg[i] && x < pLCD->iCurrentWidth)
+   {
+      c = szMsg[i++];
+      if (c < font.first || c > font.last) // undefined character
+         continue; // skip it
+      c -= font.first; // first char of font defined
+      memcpy_P(&glyph, &font.glyph[c], sizeof(glyph));
+      dx = x + pGlyph->xOffset/2; // offset from character UL to start drawing
+       cx = (pGlyph->width+1)/2;
+       if (dx+cx > pLCD->iCurrentWidth)
+           cx = pLCD->iCurrentWidth - dx;
+      dy = y + (pGlyph->yOffset/2);
+      s = font.bitmap + pGlyph->bitmapOffset; // start of bitmap data
+      // Bitmap drawing loop. Image is MSB first and each pixel is packed next
+      // to the next (continuing on to the next character line)
+      iBitOff = 0; // bitmap offset (in bits)
+      bits = uc = 0; // bits left in this font byte
+      end_y = dy + (pGlyph->height+1)/2;
+//      if (dy < 0) { // skip these lines
+//          iBitOff += (pGlyph->width * (-dy));
+//          dy = 0;
+//      }
+       spilcdSetPosition(pLCD, dx, dy, cx, end_y-dy, iFlags);
+       memset(ucTemp, 0, sizeof(ucTemp));
+       for (ty=0; ty<pGlyph->height; ty++) {
+         d = &ucTemp[(ty & 1) * (sizeof(ucTemp)/2)]; // internal buffer dest
+         for (tx=0; tx<pGlyph->width; tx++) {
+            if (bits == 0) { // need to read more font data
+               uc = pgm_read_byte(&s[iBitOff>>3]); // get more font bitmap data
+               bits = 8;
+               iBitOff += bits;
+            } // if we ran out of bits
+            if (uc & 0x80) { // set the pixel
+                d[(tx>>3)] |= (0x80 >> (tx & 7));
+            }
+            bits--; // next bit
+            uc <<= 1;
+         } // for x
+           if ((ty & 1) || ty == pGlyph->height-1) {
+               uint8_t *pg; // pointer to gray source pixels
+               uint16_t *pus = usTemp;
+               uint32_t ulAlpha, ulPixel;
+               int j;
+               const uint8_t ucClrConvert[4] = {0,5,11,16};
+               // Convert this pair of lines to grayscale output
+               Scale2Gray(ucTemp, pGlyph->width, sizeof(ucTemp)/2);
+               // the Scale2Gray code writes the bits horizontally; crop and convert them for the internal memory format
+               pg = ucTemp;
+               ucClr = *pg++;
+               for (tx=0; tx<cx; tx++) {
+                   ulAlpha = ucClrConvert[((ucClr & 0xc0) >> 6)]; // 0-3 scaled from 0 to 100% in thirds
+                   ulPixel = ((ulFG * ulAlpha) + (ulBG * (16-ulAlpha))) >> 4;
+                   ulPixel &= ulClrMask; // separate the RGBs
+                   ulPixel |= (ulPixel >> 16); // bring G back to RB
+                   *pus++ = __builtin_bswap16(ulPixel); // final pixel
+                   ucClr <<= 2;
+                   if ((tx & 3) == 3)
+                       ucClr = *pg++; // get 4 more pixels
+               }
+               myspiWrite(pLCD, (uint8_t *)usTemp, cx*sizeof(uint16_t), MODE_DATA, iFlags);
+               memset(ucTemp, 0, sizeof(ucTemp));
+           }
+      } // for y
+      x += pGlyph->xAdvance/2; // width of this character
+   } // while drawing characters
+    pLCD->iCursorX = x;
+    pLCD->iCursorY = y;
+   return 0;
+} /* spilcdWriteStringAntialias() */
 //
 // Draw a string in a proportional font you supply
 //
@@ -2926,8 +3052,14 @@ GFXglyph glyph, *pGlyph;
 #define TEMP_HIGHWATER (TEMP_BUF_SIZE-8)
 uint16_t *d, u16Temp[TEMP_BUF_SIZE];
 
-   if (pFont == NULL || x < 0)
+   if (pFont == NULL)
       return -1;
+    if (x == -1)
+        x = pLCD->iCursorX;
+    if (y == -1)
+        y = pLCD->iCursorY;
+    if (x < 0)
+        return -1;
    // in case of running on AVR, get copy of data from FLASH
    memcpy_P(&font, pFont, sizeof(font));
    pGlyph = &glyph;
@@ -2949,12 +3081,14 @@ uint16_t *d, u16Temp[TEMP_BUF_SIZE];
       cy = pGlyph->height;
       iBitOff = 0; // bitmap offset (in bits)
       if (dy + cy > pLCD->iCurrentHeight)
-         cy = pLCD->iCurrentHeight - dy;
+         cy = pLCD->iCurrentHeight - dy; // clip bottom edge
       else if (dy < 0) {
          cy += dy;
          iBitOff += (pGlyph->width * (-dy));
          dy = 0;
       }
+      if (dx + cx > pLCD->iCurrentWidth)
+         cx = pLCD->iCurrentWidth - dx; // clip right edge
       s = font.bitmap + pGlyph->bitmapOffset; // start of bitmap data
       // Bitmap drawing loop. Image is MSB first and each pixel is packed next
       // to the next (continuing on to the next character line)
@@ -2963,20 +3097,27 @@ uint16_t *d, u16Temp[TEMP_BUF_SIZE];
       if (bBlank) { // erase the areas around the char to not leave old bits
          int miny, maxy;
          c = '0' - font.first;
-         miny = y + (int8_t)pgm_read_byte(&font.glyph[c].yOffset);
+         miny = y + pGlyph->yOffset;
          c = 'y' - font.first;
-         maxy = y + (int8_t)pgm_read_byte(&font.glyph[c].yOffset) + pgm_read_byte(&font.glyph[c].height);
-         spilcdSetPosition(pLCD, x, miny, pGlyph->xAdvance, maxy-miny, iFlags);
+         maxy = miny + pGlyph->height;
+         if (maxy > pLCD->iCurrentHeight)
+            maxy = pLCD->iCurrentHeight;
+         cx = pGlyph->xAdvance;
+         if (cx + x > pLCD->iCurrentWidth) {
+            cx = pLCD->iCurrentWidth - x;
+         }
+         spilcdSetPosition(pLCD, x, miny, cx, maxy-miny, iFlags);
             // blank out area above character
-            for (ty=miny; ty<y+pGlyph->yOffset; ty++) {
-               for (tx=0; tx>pGlyph->xAdvance; tx++)
-                  u16Temp[tx] = usBGColor;
-               myspiWrite(pLCD, (uint8_t *)u16Temp, pGlyph->xAdvance*sizeof(uint16_t), MODE_DATA, iFlags);
-            } // for ty
+//            cy = font.yAdvance - pGlyph->height;
+//            for (ty=miny; ty<miny+cy && ty < maxy; ty++) {
+//               for (tx=0; tx<cx; tx++)
+//                  u16Temp[tx] = usBGColor;
+//               myspiWrite(pLCD, (uint8_t *)u16Temp, cx*sizeof(uint16_t), MODE_DATA, iFlags);
+//            } // for ty
             // character area (with possible padding on L+R)
-            for (ty=0; ty<pGlyph->height; ty++) {
+            for (ty=0; ty<pGlyph->height && ty+miny < maxy; ty++) {
                d = &u16Temp[0];
-               for (tx=0; tx<pGlyph->xOffset; tx++) { // left padding
+               for (tx=0; tx<pGlyph->xOffset && tx < cx; tx++) { // left padding
                   *d++ = usBGColor;
                }
             // character bitmap (center area)
@@ -2986,34 +3127,31 @@ uint16_t *d, u16Temp[TEMP_BUF_SIZE];
                      bits = 8;
                      iBitOff += bits;
                   }
-                  *d++ = (uc & 0x80) ? usFGColor : usBGColor;
+                  if (tx + pGlyph->xOffset < cx) {
+                     *d++ = (uc & 0x80) ? usFGColor : usBGColor;
+                  }
                   bits--;
                   uc <<= 1;
                } // for tx
                // right padding
                k = pGlyph->xAdvance - (int)(d - u16Temp); // remaining amount
-               for (tx=0; tx<k; tx++)
-               *d++ = usBGColor;
-               myspiWrite(pLCD, (uint8_t *)u16Temp, pGlyph->xAdvance*sizeof(uint16_t), MODE_DATA, iFlags);
+               for (tx=0; tx<k && (tx+pGlyph->xOffset+pGlyph->width) < cx; tx++)
+                  *d++ = usBGColor;
+               myspiWrite(pLCD, (uint8_t *)u16Temp, cx*sizeof(uint16_t), MODE_DATA, iFlags);
             } // for ty
             // padding below the current character
             ty = y + pGlyph->yOffset + pGlyph->height;
             for (; ty < maxy; ty++) {
-               for (tx=0; tx<pGlyph->xAdvance; tx++)
+               for (tx=0; tx<cx; tx++)
                   u16Temp[tx] = usBGColor;
-               myspiWrite(pLCD, (uint8_t *)u16Temp, pGlyph->xAdvance*sizeof(uint16_t), MODE_DATA, iFlags);
+               myspiWrite(pLCD, (uint8_t *)u16Temp, cx*sizeof(uint16_t), MODE_DATA, iFlags);
             } // for ty
       } else { // just draw the current character box
          spilcdSetPosition(pLCD, dx, dy, cx, cy, iFlags);
-            iLen = cx * cy; // total pixels to draw
             d = &u16Temp[0]; // point to start of output buffer
-            for (j=0; j<iLen; j++) {
-               if (uc == 0) { // need to read more font data
-                  j += bits;
-                  while (bits > 0) {
-                     *d++ = usBGColor; // draw any remaining 0 bits
-                     bits--;
-                  }
+            for (ty=0; ty<cy; ty++) {
+            for (tx=0; tx<pGlyph->width; tx++) {
+               if (bits == 0) { // need to read more font data
                   uc = pgm_read_byte(&s[iBitOff>>3]); // get more font bitmap data
                   bits = 8 - (iBitOff & 7); // we might not be on a byte boundary
                   iBitOff += bits; // because of a clipped line
@@ -3024,18 +3162,22 @@ uint16_t *d, u16Temp[TEMP_BUF_SIZE];
                      d = &u16Temp[0];
                   }
                } // if we ran out of bits
-               *d++ = (uc & 0x80) ? usFGColor : usBGColor;
+               if (tx < cx) {
+                  *d++ = (uc & 0x80) ? usFGColor : usBGColor;
+               }
                bits--; // next bit
                uc <<= 1;
-            } // for j
+            } // for tx
+            } // for ty
             k = (int)(d-u16Temp);
             if (k) // write any remaining data
                myspiWrite(pLCD, (uint8_t *)u16Temp, k*sizeof(uint16_t), MODE_DATA, iFlags);
       } // quicker drawing
       x += pGlyph->xAdvance; // width of this character
    } // while drawing characters
+    pLCD->iCursorX = x;
+    pLCD->iCursorY = y;
    return 0;
-
 } /* spilcdWriteStringCustom() */
 //
 // Get the width of text in a custom font
@@ -3072,9 +3214,7 @@ int miny, maxy;
 
 #ifndef __AVR__
 //
-// Draw a string of small (8x8) text as quickly as possible
-// by writing it to the LCD in a single SPI write
-// The string must be 32 characters or shorter
+// Draw a string of text as quickly as possible
 //
 int spilcdWriteStringFast(SPILCD *pLCD, int x, int y, char *szMsg, unsigned short usFGColor, unsigned short usBGColor, int iFontSize, int iFlags)
 {
@@ -3087,8 +3227,59 @@ uint16_t *usD;
 int cx;
 uint8_t *pFont;
 
-    if (iFontSize != FONT_6x8 && iFontSize != FONT_8x8)
+    if (iFontSize != FONT_6x8 && iFontSize != FONT_8x8 && iFontSize != FONT_12x16)
         return -1; // invalid size
+    if (x == -1)
+        x = pLCD->iCursorX;
+    if (y == -1)
+        y = pLCD->iCursorY;
+    if (x < 0) return -1;
+    
+    if (iFontSize == FONT_12x16) {
+        iLen = strlen(szMsg);
+        if ((12*iLen) + x > pLCD->iCurrentWidth) iLen = (pLCD->iCurrentWidth - x)/12; // can't display it all
+        if (iLen < 0) return -1;
+        iStride = iLen*12;
+        spilcdSetPosition(pLCD, x, y, iStride, 16, iFlags);
+        for (k = 0; k<8; k++) { // create a pair of scanlines from each original
+           uint8_t ucMask = (1 << k);
+           usD = (unsigned short *)&ucRXBuf[0];
+           for (i=0; i<iStride*2; i++)
+              usD[i] = usBG; // set to background color first
+           for (i=0; i<iLen; i++)
+           {
+               uint8_t c0, c1;
+               s = (uint8_t *)&ucSmallFont[((unsigned char)szMsg[i]-32) * 6];
+               for (j=1; j<6; j++)
+               {
+                   uint8_t ucMask1 = ucMask << 1;
+                   uint8_t ucMask2 = ucMask >> 1;
+                   c0 = pgm_read_byte(&s[j]);
+                   if (c0 & ucMask)
+                      usD[0] = usD[1] = usD[iStride] = usD[iStride+1] = usFG;
+                   // test for smoothing diagonals
+                   if (j < 5) {
+                      c1 = pgm_read_byte(&s[j+1]);
+                      if ((c0 & ucMask) && (~c1 & ucMask) && (~c0 & ucMask1) && (c1 & ucMask1)) { // first diagonal condition
+                          usD[iStride+2] = usFG;
+                      } else if ((~c0 & ucMask) && (c1 & ucMask) && (c0 & ucMask1) && (~c1 & ucMask1)) { // second condition
+                          usD[iStride+1] = usFG;
+                      }
+                      if ((c0 & ucMask2) && (~c1 & ucMask2) && (~c0 & ucMask) && (c1 & ucMask)) { // repeat for previous line
+                          usD[1] = usFG;
+                      } else if ((~c0 & ucMask2) && (c1 & ucMask2) && (c0 & ucMask) && (~c1 & ucMask)) {
+                          usD[2] = usFG;
+                      }
+                   }
+                   usD+=2;
+               } // for j
+               usD += 2; // leave "6th" column blank
+            } // for each character
+            myspiWrite(pLCD, ucRXBuf, iStride*4, MODE_DATA, iFlags);
+        } // for each scanline
+        return 0;
+    } // 12x16
+    
     cx = (iFontSize == FONT_8x8) ? 8:6;
     pFont = (iFontSize == FONT_8x8) ? (uint8_t *)ucFont : (uint8_t *)ucSmallFont;
     iLen = strlen(szMsg);
@@ -3117,6 +3308,8 @@ uint8_t *pFont;
     // write the data in one shot
     spilcdSetPosition(pLCD, x, y, cx*iLen, 8, iFlags);
     myspiWrite(pLCD, ucRXBuf, iLen*cx*16, MODE_DATA, iFlags);
+    pLCD->iCursorX = x + (cx*iLen);
+    pLCD->iCursorY = y;
 	return 0;
 } /* spilcdWriteStringFast() */
 #endif // !__AVR__
@@ -3137,6 +3330,11 @@ unsigned short usBG = (usBGColor >> 8) | (usBGColor << 8);
 uint16_t usPitch = pLCD->iScreenPitch/2;
 
 
+    if (x == -1)
+        x = pLCD->iCursorX;
+    if (y == -1)
+        y = pLCD->iCursorY;
+    if (x < 0 || y < 0) return -1;
 	iLen = strlen(szMsg);
     if (usBGColor == -1)
         iFlags = DRAW_TO_RAM; // transparent text doesn't get written to the display
@@ -3232,7 +3430,8 @@ uint16_t usPitch = pLCD->iScreenPitch/2;
         if (usBGColor != -1) // don't write anything if we're doing transparent text
             myspiWrite(pLCD, (unsigned char *)usTemp, cx*16, MODE_DATA, iFlags);
 		}	
-	} // 6x8 and 8x8
+        x += (i*cx);
+    } // 6x8 and 8x8
     if (iFontSize == FONT_12x16) // 6x8 stretched to 12x16 (with smoothing)
     {
         uint16_t *usD, *usTemp = (uint16_t *)ucRXBuf;
@@ -3301,6 +3500,7 @@ uint16_t usPitch = pLCD->iScreenPitch/2;
         if (usBGColor != -1) // don't write anything if we're doing transparent text
             myspiWrite(pLCD, (unsigned char *)&usTemp[0], 12*16*2, MODE_DATA, iFlags);
         }
+        x += i*12;
     } // FONT_12x16
     if (iFontSize == FONT_16x16) // 8x8 stretched to 16x16
     {
@@ -3350,7 +3550,10 @@ uint16_t usPitch = pLCD->iScreenPitch/2;
         if (usBGColor != -1) // don't write anything if we're doing transparent text
             myspiWrite(pLCD, (unsigned char *)&usTemp[0], 512, MODE_DATA, iFlags);
         }
+        x += (i*16);
     } // FONT_16x16
+    pLCD->iCursorX = x;
+    pLCD->iCursorY = y;
 	return 0;
 } /* spilcdWriteString() */
 //
@@ -3627,6 +3830,10 @@ uint16_t *u16Temp = (uint16_t *)ucRXBuf;
     {
        cx = 2; tx = pLCD->iCurrentWidth/2;
     }
+#ifdef __AVR__
+    cx = 16;
+    tx = pLCD->iCurrentWidth/16;
+#endif
     for (y=0; y<pLCD->iCurrentHeight; y++)
     {
        for (x=0; x<cx; x++)
