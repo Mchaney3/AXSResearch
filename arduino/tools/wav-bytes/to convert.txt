@@ -1,0 +1,4 @@
+xxd.exe -i yoursound.wav yoursound.c
+
+This will create a new file in which the converted sound is stored.
+Create a new header and paste it there or something.

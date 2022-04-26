@@ -1,0 +1,219 @@
+language: generic
+dist: bionic
+sudo: false
+cache:
+  directories:
+    - ~/Arduino
+    - ~/.arduino15/packages/
+
+# default phases
+before_install:
+  - mkdir -p "$HOME/bin"
+  - curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR="$HOME/bin" sh
+  - export PATH="$PATH:$HOME/bin"
+  - arduino-cli core update-index --additional-urls https://downloads.arduino.cc/packages/package_index.json
+  - arduino-cli core update-index --additional-urls https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+  - arduino-cli core install arduino:avr --additional-urls https://downloads.arduino.cc/packages/package_index.json
+  - arduino-cli core install Seeeduino:samd --additional-urls https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+  - |
+    installLibrary() {
+      local -r repositoryFullName="$1"
+      local -r repositoryName="${repositoryFullName##*/}"
+      # clone repository to the libraries folder of the sketchbook
+      git clone https://github.com/${repositoryFullName} "${HOME}/Arduino/libraries/${repositoryName}"
+      cd "${HOME}/Arduino/libraries/${repositoryName}"
+      cd "${TRAVIS_BUILD_DIR}"
+    }
+  - buildExampleSketch() { arduino-cli compile --fqbn $BOARD $PWD/examples/$1 ; }
+  - buildExampleUtilitySketch() { arduino-cli compile --fqbn $BOARD $PWD/examples/utility/$1 ; }
+
+install:
+  - mkdir -p $HOME/Arduino/libraries
+
+script: 
+    - echo "*************************************WioTerminal-ADS1115*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_ADS1115
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal-ADS1115;
+
+    - echo "*************************************WioTerminal-WioTerminal_BackLight*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_BackLight;
+
+    - echo "*************************************WioTerminal-jumper*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_FS
+    - installLibrary Seeed-Studio/Seeed_Arduino_SFUD
+    - installLibrary adafruit/Adafruit_ZeroTimer
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch jumper;
+
+    - echo "*************************************WioTerminal-Lidar_Terminal*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_Linechart
+    - installLibrary Seeed-Studio/Seeed_Arduino_TFlidar
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch Lidar_Terminal;    
+
+    - echo "*************************************WioTerminal-GPS_Terminal*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Hansen0314/SoftwareSerial
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch GPS_Terminal;   
+
+    - echo "*************************************XIAO-Fingerprint_lock*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_KCT202
+    - installLibrary adafruit/Adafruit_NeoPixel
+    - installLibrary arduino-libraries/Servo
+    - installLibrary Seeed-Studio/Grove_LCD_RGB_Backlight
+    - export BOARD=Seeeduino:samd:seeed_XIAO_m0
+    - buildExampleSketch Fingerprint_lock;   
+
+    - echo "*************************************WioTerminal-IR_Terminal*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_MLX9064x
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch IR_Terminal;  
+
+    - echo "*************************************WioTerminal_USB2Serial_Burn8720*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_LCD
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_USB2Serial_Burn8720;  
+
+    - echo "*************************************HID_PC_Media_Controller***********************************************************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*
+    - installLibrary adafruit/Adafruit_TinyUSB_Arduino
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - arduino-cli compile --warnings all --fqbn $BOARD $PWD/examples/HID_PC_Media_Controller --build-properties build.flags.usbstack=-DUSE_TINYUSB  
+
+    - echo "*************************************WioTerminal_AWSIoT_Bridge*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcWiFi
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcUnified
+    - installLibrary Seeed-Studio/Seeed_Arduino_FreeRTOS
+    - installLibrary knolleary/pubsubclient
+    - installLibrary bblanchon/ArduinoJson
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_AWSIoT_Bridge;
+
+     echo "*************************************WioTerminal_ButtonMouseControl***********************************************************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary  arduino-libraries/Mouse
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_ButtonMouseControl;
+
+    - echo "*************************************WioTerminal_NTP*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcWiFi
+    - installLibrary Seeed-Studio/Seeed_Arduino_FreeRTOS
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcUnified
+    - installLibrary Seeed-Studio/esp-at-lib
+    - installLibrary ansonhe97/millisDelay
+    - installLibrary adafruit/RTClib
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_NTP;
+
+    - echo "*************************************WioTerminal_Https_Stock_Demo*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcWiFi
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcUnified
+    - installLibrary Seeed-Studio/Seeed_Arduino_FreeRTOS
+    - installLibrary bblanchon/ArduinoJson
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_Https_Stock_Demo;
+
+    - echo "*************************************SeeeduinoXIAO_SPISlave*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*
+    - export BOARD=Seeeduino:samd:seeed_XIAO_m0
+    - buildExampleSketch SeeeduinoXIAO_SPISlave;
+
+
+    - echo "*************************************WioTerminal_UncannyEyes*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_UncannyEyes;
+
+
+    - echo "*************************************WioTerminal_WebBluetooth*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcBLE
+    - installLibrary Seeed-Studio/Seeed_Arduino_rpcUnified
+    - installLibrary Seeed-Studio/Seeed_Arduino_FreeRTOS
+    - installLibrary Seeed-Studio/Seeed_Arduino_LIS3DHTR
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_WebBluetooth;
+
+    - echo "*************************************WioTerminal_AttitudeIndicator*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary Seeed-Studio/Seeed_Arduino_LIS3DHTR
+    - installLibrary lovyan03/LovyanGFX
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_AttitudeIndicator;
+
+    - echo "*************************************WioTerminal_Face*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary PaintYourDragon/Servo
+    - installLibrary lovyan03/LovyanGFX
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_Face;
+
+    - echo "*************************************WioTerminal_MP3_Player*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary Seeed-Studio/Seeed_Serial_MP3_Player
+    - installLibrary lovyan03/LovyanGFX
+    - installLibrary Seeed-Studio/Seeed_Arduino_FS
+    - installLibrary Seeed-Studio/Seeed_Arduino_LCD
+    - installLibrary Seeed-Studio/Seeed_Arduino_SFUD
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_MP3_Player;
+
+    - echo "*************************************WioTerminal_Level*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary Seeed-Studio/Seeed_Arduino_LIS3DHTR
+    - installLibrary Seeed-Studio/Seeed_Arduino_FS
+    - installLibrary Seeed-Studio/Seeed_Arduino_LCD
+    - installLibrary Seeed-Studio/Seeed_Arduino_SFUD
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_Level;
+
+    - echo "*************************************WioTerminal_Timer*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary lovyan03/LovyanGFX
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_Timer;
+
+    - echo "*************************************WioTerminal_GPS*********************************************"
+    - rm -rf $HOME/Arduino/libraries/*
+    - rm -rf /tmp/arduino*    
+    - installLibrary lovyan03/LovyanGFX
+    - installLibrary mikalhart/TinyGPSPlus
+    - installLibrary Seeed-Studio/Seeed_Arduino_LCD
+    - installLibrary Seeed-Studio/Seeed_Arduino_FS
+    - installLibrary Seeed-Studio/Seeed_Arduino_SFUD
+    - export BOARD=Seeeduino:samd:seeed_wio_terminal
+    - buildExampleSketch WioTerminal_GPS;
+
+    
+
+
+
+notifications:
+  webhooks:
+    urls:
+      - https://www.travisbuddy.com/
+    on_success: never
+    on_failure: always

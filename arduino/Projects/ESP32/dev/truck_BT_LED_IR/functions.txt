@@ -1,0 +1,15 @@
+OKAY_SHIFT
+
+Pressing OK will switch modes for the arrow keys.
+
+OKAY_SHIFT = 0
+Up arrow = Brightness up
+Down arrow = Brightness down
+Left arrow = Previous mode
+Right arrow = Next mode
+
+OKAY_SHIFT = 1
+Up arrow = Next color
+Down arrow = Previous color
+Left arrow = Decrease speed
+Right arrow = Increase speed
