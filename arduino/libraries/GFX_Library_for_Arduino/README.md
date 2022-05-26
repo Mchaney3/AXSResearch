@@ -30,6 +30,7 @@ gfx->println("Hello World!");
 ```
 
 ## U8g2 Font Support
+<<<<<<< HEAD
 [U8g2](https://github.com/olikraus/u8g2.git) proivided various font type and stored in compressed format. So U8g2 font gives more UI design possibilities and still can fit in the MCU limited storage space. Using U8g2 font in Arduino_GFX simply include U8g2lib.h before Arduino_GFX_Library.h:
 ```C
 #include <U8g2lib.h>
@@ -38,23 +39,44 @@ gfx->println("Hello World!");
 
 And then setfont file to use:
 ```C
+=======
+[[U8g2](https://github.com/olikraus/u8g2.git)] proivided various font type and stored in compressed format. So U8g2 font gives more UI design possibilities and still can fit in the MCU limited storage space. Using U8g2 font in Arduino_GFX simply include U8g2lib.h before Arduino_GFX_Library.h:
+```
+#include <U8g2lib.h>
+#include <Arduino_GFX_Library.h>
+```
+And then setfont file to use:
+```
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 gfx->setCursor(10, 20);
 gfx->setFont(u8g2_font_maniac_tr);
 gfx->println("Hello World!");
 ```
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 U8g2 font list can be found at: https://github.com/olikraus/u8g2/wiki/fntlistall
 
 ### U8g2 Font UTF8 Support
 Another U8g2 font advantage is the font support Unicode glyphs. Simply enable setUTF8Print:
+<<<<<<< HEAD
 ```C
+=======
+```
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
     gfx->begin();
     gfx->fillScreen(BLACK);
     gfx->setUTF8Print(true);
 ```
+<<<<<<< HEAD
 
 And then print UTF8 string as usual:
 ```C
+=======
+And then print UTF8 string as usual:
+```
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
     gfx->setCursor(0, 16);
 
     gfx->setFont(u8g2_font_unifont_tr);
@@ -77,19 +99,29 @@ And then print UTF8 string as usual:
 ```
 U8g2 Unifont list can be found at: https://github.com/olikraus/u8g2/wiki/fntgrpunifont
 
+<<<<<<< HEAD
 ### Extra Fonts
 Besides U8g2 generated font, Arduino_GFX also generated some useful font set from latest [unifont_jp-14.0.02](http://unifoundry.com/pub/unifont/unifont-14.0.02/font-builds/unifont_jp-14.0.02.bdf.gz):
+=======
+Besides U8g2 generated font, Arduino_GFX also generated some useful font set from latest [unifont_jp-14.0.02](http://unifoundry.com/pub/unifont/unifont-14.0.02/font-builds/unifont_jp-14.0.02.bdf.gz)]:
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
 #### u8g2_font_unifont_h_utf8
  * Glyphs: 57389/57389
  * Size: 2,250,360
  * Generation script:
+<<<<<<< HEAD
 ```console
 bdfconv -v -f 1 -b 1 -m "0-1114111" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_h_utf8.h -n u8g2_font_unifont_h_utf8
+=======
+```
+u8g2/tools/font/bdfconv/./bdfconv -v -f 1 -b 1 -m "0-1114111" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_h_utf8.h -n u8g2_font_unifont_h_utf8
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 ```
 
 #### u8g2_font_unifont_t_chinese
  * Glyphs: 22145/57389
+<<<<<<< HEAD
  * Size: 979,557
  * Generation script:
 ```console
@@ -113,6 +145,20 @@ bdfconv -v -f 1 -M common.txt unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_chin
  * Generation script:
 ```console
  bdfconv -v -f 1 -m "32-127,4352-4607,11904-12255,12288-19903,19968-40943,43360-43391,44032-55203,55216-55295,63744-64255,65072-65103,65280-65519" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_cjk.h -n u8g2_font_unifont_t_cjk
+=======
+ * Size: 1,024,137
+ * Generation script:
+```
+u8g2/tools/font/bdfconv/bdfconv -v -f 1 -b 1 -m "32-127,11904-12351,19968-40959,63744-64255,65280-65376" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_chinese.h -n u8g2_font_unifont_t_chinese
+```
+
+#### u8g2_font_unifont_t_cjk
+ * Glyphs: 41667/57389
+ * Size: 1,718,037
+ * Generation script:
+```
+ u8g2/tools/font/bdfconv/bdfconv -v -f 1 -m "32-127,4352-4607,11904-12255,12288-19903,19968-40943,43360-43391,44032-55203,55216-55295,63744-64255,65072-65103,65280-65519,110592-110959,127488-127743,131072-173791" unifont_jp-14.0.02.bdf -o u8g2_font_unifont_t_cjk.h -n u8g2_font_unifont_t_cjk
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 ```
 
 ## Performance
@@ -159,7 +205,11 @@ Most tiny displays in hobbyist electronics world support 8-bit SPI, but some req
 
 Larger displays most likely do not support standalone SPI since it is not fast enough to refresh the full screen details. Most of them support 8-bit/16-bit Parallel interface.
 
+<<<<<<< HEAD
 Some larger display require RGB + 3-bit SPI combo interface, This interface requies at most 3(9-bit SPI) + 4(CS, CD, WR, RD) + 24(RBG888) = 31 pins. Most dev board do not have enough GPIO to support this. Arduino_GFX is stick to RGB565 color, so RGB666 and RGB888 require some connection hack. E.g. RGB666 connect R5 and R6 together, B5 and B6 together to become RGB565. Then the least GPIO requirement can become 3(9-bit SPI) + 2(CD, WR) + 16(RBG565) = 21 pins. **Remember always pull down CS pin and always pull up RD pin.**
+=======
+Some larger display require 3-bit SPI + RGB combo interface, i.e. require more than 3 + 24 pins. Most dev board do not have enough GPIO to support this. Arduino_GFX will eventually support this combo interface but will be in very low priority. A huge monthly sponsor may make it happen :P
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
 ## Currently Supported data bus [[Wiki](https://github.com/moononournation/Arduino_GFX/wiki/Data-Bus-Class)]
 - 8-bit and 9-bit hardware SPI (ESP32SPI)
@@ -170,6 +220,10 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 - RGB565+SPI interface (ESP32RGBPanel)
 
 ## Tobe Support data bus (Sponsors can make it happen)
+<<<<<<< HEAD
+=======
+- ESP32 I2S 8-bit/16-bit parallel interface
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 - Arduino ATMega2560 dual 8-bit Port form 16-bit parallel interface
 - FastLED
 
@@ -253,6 +307,7 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 - Canvas_3bit (1/4 memory space framebuffer)
 - Canvas_Mono (1/16 memory space framebuffer)
 
+<<<<<<< HEAD
 ## LVGL Support
 3 LVGL demo provide in examples folder:
 - LvglBenchmark [[demo video](https://youtu.be/75Qx-UEgabY)]
@@ -260,6 +315,10 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 - LvglWidgets
 
 ## Feature wishlist (Sponsors can make it happen)
+=======
+## Feature wishlist (Sponsors can make it happen)
+- Print UTF8 Characters
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 - Print color Emoji Characters
 - Load bitmap font files from flash / SD
 - Fill Gradient
@@ -281,4 +340,8 @@ Some larger display require RGB + 3-bit SPI combo interface, This interface requ
 - https://github.com/lovyan03/LovyanGFX.git
 - https://github.com/lovyan03/M5Stack_JpgLoopAnime.git
 - https://github.com/nopnop2002/esp-idf-parallel-tft.git
+<<<<<<< HEAD
 - https://github.com/olikraus/u8g2.git
+=======
+- https://github.com/olikraus/u8g2.git
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663

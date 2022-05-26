@@ -525,6 +525,7 @@ namespace lgfx
 
       void save_reg(i2c_dev_t* dev)
       {
+<<<<<<< HEAD
         auto reg = (volatile uint32_t*)dev;
 #if defined ( CONFIG_IDF_TARGET_ESP32S3 )
         auto fifo_reg = (volatile uint32_t*)(&dev->data);
@@ -536,10 +537,14 @@ namespace lgfx
           if (fifo_reg == &reg[i]) { continue; }
           _reg_store[i] = reg[i];
         }
+=======
+        memcpy(_reg_store, (const void*)dev, sizeof(_reg_store));
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
       }
 
       void load_reg(i2c_dev_t* dev)
       {
+<<<<<<< HEAD
         auto reg = (volatile uint32_t*)dev;
 #if defined ( CONFIG_IDF_TARGET_ESP32S3 )
         auto fifo_reg = (volatile uint32_t*)(&dev->data);
@@ -551,6 +556,9 @@ namespace lgfx
           if (fifo_reg == &reg[i]) { continue; }
           reg[i] = _reg_store[i];
         }
+=======
+        memcpy((void*)dev, _reg_store, sizeof(_reg_store));
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
       }
 
       void setPins(i2c_dev_t* dev, gpio_num_t scl, gpio_num_t sda)
@@ -1117,10 +1125,17 @@ namespace lgfx
         }
         i2c_set_cmd(dev, 0, i2c_cmd_read, len);
         i2c_set_cmd(dev, 1, i2c_cmd_end, 0);
+<<<<<<< HEAD
         updateDev(dev);
         dev->ctr.trans_start = 1;
         taskYIELD();
         dev->int_clr.val = intmask;
+=======
+        dev->int_clr.val = intmask;
+        updateDev(dev);
+        dev->ctr.trans_start = 1;
+        taskYIELD();
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
         do
         {
           uint32_t us = lgfx::micros();
@@ -1128,7 +1143,11 @@ namespace lgfx
           while (0 == dev->sr.rx_fifo_cnt && !(dev->int_raw.val & intmask) && ((lgfx::micros() - us) <= us_limit));
           if (0 != dev->sr.rx_fifo_cnt)
 #elif defined ( CONFIG_IDF_TARGET_ESP32S3 )
+<<<<<<< HEAD
           while (0 == dev->sr.rxfifo_cnt && !(dev->int_raw.val & intmask) && ((lgfx::micros() - us) <= us_limit));
+=======
+          while (0 == dev->sr.rxfifo_cnt && !(dev->int_raw.val & intmask) && ((micros() - us) <= us_limit));
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
           if (0 != dev->sr.rxfifo_cnt)
 #else
           while (0 == dev->status_reg.rx_fifo_cnt && !(dev->int_raw.val & intmask) && ((lgfx::micros() - us) <= us_limit));

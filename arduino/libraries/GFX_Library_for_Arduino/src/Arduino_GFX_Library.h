@@ -26,7 +26,10 @@
 #include "databus/Arduino_RPiPicoSPI.h"
 #include "databus/Arduino_RTLPAR8.h"
 #include "databus/Arduino_STM32PAR8.h"
+<<<<<<< HEAD
 #include "databus/Arduino_SWPAR8.h"
+=======
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #include "databus/Arduino_SWSPI.h"
 
 #include "Arduino_GFX.h" // Core graphics library
@@ -142,11 +145,16 @@
 #define DF_GFX_DC 27
 #define DF_GFX_RST 33
 #define DF_GFX_BL 22
+<<<<<<< HEAD
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2)
+=======
+#elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #define DF_GFX_SCK 36
 #define DF_GFX_MOSI 35
 #define DF_GFX_MISO GFX_NOT_DEFINED
 #define DF_GFX_CS 34
+<<<<<<< HEAD
 #define DF_GFX_DC 35
 #define DF_GFX_RST 33
 #define DF_GFX_BL 21
@@ -158,6 +166,11 @@
 #define DF_GFX_DC 41
 #define DF_GFX_RST 42
 #define DF_GFX_BL 48
+=======
+#define DF_GFX_DC 26
+#define DF_GFX_RST 33
+#define DF_GFX_BL 21
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32C3)
 #define DF_GFX_SCK 4
 #define DF_GFX_MOSI 6

@@ -16,8 +16,12 @@
  * Arduino Nano, Micro and more: CS:  9, DC:  8, RST:  7, BL:  6
  * ESP32 various dev board     : CS:  5, DC: 27, RST: 33, BL: 22
  * ESP32-C3 various dev board  : CS:  7, DC:  2, RST:  1, BL:  3
+<<<<<<< HEAD
  * ESP32-S2 various dev board  : CS: 34, DC: 35, RST: 33, BL: 21
  * ESP32-S3 various dev board  : CS: 40, DC: 41, RST: 42, BL: 48
+=======
+ * ESP32-S2/3 various dev board: CS: 34, DC: 26, RST: 33, BL: 21
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
  * ESP8266 various dev board   : CS: 15, DC:  4, RST:  2, BL:  5
  * Raspberry Pi Pico dev board : CS: 17, DC: 27, RST: 26, BL: 28
  * RTL8720 BW16 old patch core : CS: 18, DC: 17, RST:  2, BL: 23
@@ -41,7 +45,11 @@ Arduino_GFX *gfx = create_default_Arduino_GFX();
 Arduino_DataBus *bus = create_default_Arduino_DataBus();
 
 /* More display class: https://github.com/moononournation/Arduino_GFX/wiki/Display-Class */
+<<<<<<< HEAD
 Arduino_GFX *gfx = new Arduino_ILI9341(bus, DF_GFX_RST, 3 /* rotation */, false /* IPS */);
+=======
+Arduino_GFX *gfx = new Arduino_ILI9341(bus, DF_GFX_RST, 0 /* rotation */, false /* IPS */);
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
 #endif /* !defined(DISPLAY_DEV_KIT) */
 /*******************************************************************************
@@ -138,19 +146,35 @@ void setup(void)
     digitalWrite(GFX_BL, HIGH);
 #endif
 
+<<<<<<< HEAD
     gfx->setCursor(0, 14);
     gfx->setFont(u8g2_font_unifont_h_utf8);
     gfx->println("Hello world in multiple languages");
+=======
+    gfx->setCursor(10, 20);
+    gfx->setFont(u8g2_font_unifont_h_utf8);
+    gfx->setTextColor(RED);
+    gfx->println("Hello World!");
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
     delay(2000); // 2 seconds
 }
 
 void loop()
 {
+<<<<<<< HEAD
     gfx->setCursor(random(gfx->width() / 4), random(gfx->height() - 32) + 16);
     gfx->setTextColor(random(0xffff), random(0xffff));
     gfx->setTextSize(random(2) + 2 /* x scale */, random(2) + 2 /* y scale */);
     gfx->println(helloWorldStrings[random(74)]);
 
     delay(500); // 0.5 second
+=======
+    gfx->setCursor(random(gfx->width()), random(gfx->height()));
+    gfx->setTextColor(random(0xffff), random(0xffff));
+    gfx->setTextSize(random(4) /* x scale */, random(4) /* y scale */);
+    gfx->println(helloWorldStrings[random(74)]);
+
+    delay(1000); // 1 second
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 }

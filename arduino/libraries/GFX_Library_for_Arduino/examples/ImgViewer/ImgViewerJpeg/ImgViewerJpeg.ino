@@ -37,8 +37,12 @@
  * Arduino Nano, Micro and more: CS:  9, DC:  8, RST:  7, BL:  6
  * ESP32 various dev board     : CS:  5, DC: 27, RST: 33, BL: 22
  * ESP32-C3 various dev board  : CS:  7, DC:  2, RST:  1, BL:  3
+<<<<<<< HEAD
  * ESP32-S2 various dev board  : CS: 34, DC: 35, RST: 33, BL: 21
  * ESP32-S3 various dev board  : CS: 40, DC: 41, RST: 42, BL: 48
+=======
+ * ESP32-S2/3 various dev board: CS: 34, DC: 26, RST: 33, BL: 21
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
  * ESP8266 various dev board   : CS: 15, DC:  4, RST:  2, BL:  5
  * Raspberry Pi Pico dev board : CS: 17, DC: 27, RST: 26, BL: 28
  * RTL8720 BW16 old patch core : CS: 18, DC: 17, RST:  2, BL: 23
@@ -136,8 +140,15 @@ void setup()
   else
   {
     unsigned long start = millis();
+<<<<<<< HEAD
     jpegDraw(JPEG_FILENAME, jpegDrawCallback, true /* useBigEndian */,
              0 /* x */, 0 /* y */, gfx->width() /* widthLimit */, gfx->height() /* heightLimit */);
+=======
+    // read JPEG file header
+    jpegDraw(JPEG_FILENAME, jpegDrawCallback, true /* useBigEndian */,
+            0 /* x */, 0 /* y */, gfx->width() /* widthLimit */, gfx->height() /* heightLimit */);
+
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
     Serial.printf("Time used: %lu\n", millis() - start);
   }
 
@@ -146,6 +157,7 @@ void setup()
 
 void loop()
 {
+<<<<<<< HEAD
   int w = gfx->width();
   int h = gfx->height();
 
@@ -155,6 +167,12 @@ void loop()
            random(h * 2) - h /* y */,
            w /* widthLimit */, h /* heightLimit */);
   Serial.printf("Time used: %lu\n", millis() - start);
+=======
+  jpegDraw(JPEG_FILENAME, jpegDrawCallback, true /* useBigEndian */,
+          random(gfx->width() * 2) - gfx->width() /* x */,
+          random(gfx->height() * 2) - gfx->height() /* y */,
+          gfx->width() /* widthLimit */, gfx->height() /* heightLimit */);
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
   delay(1000);
 }

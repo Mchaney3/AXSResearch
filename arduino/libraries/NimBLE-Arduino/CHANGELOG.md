@@ -2,6 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
+<<<<<<< HEAD
 ## [1.3.8] - 2022-04-27
 
 ### Fixed
@@ -13,6 +14,8 @@ All notable changes to this project will be documented in this file.
 - Subscribing to characteristic notifications/indications will now always use write with response, as per BLE specifications.
 - `NimBLEClient::discoverAttributes` now returns a bool value to indicate success/failure
 
+=======
+>>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 ## [1.3.7] - 2022-02-15
 
 ### Fixed
