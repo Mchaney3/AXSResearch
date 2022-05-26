@@ -124,7 +124,7 @@ a2dp_sink.set_on_connection_state_changed(connection_state_changed);
   };
   a2dp_sink.set_pin_config(my_pin_config);
   a2dp_sink.start("");
-  if(!SerialBT.begin("Mike's Truck")) {
+  if(!SerialBT.begin("Bonnie")) {
     Serial.println("Could not start LED BLuetooth Control");
   } 
   else {

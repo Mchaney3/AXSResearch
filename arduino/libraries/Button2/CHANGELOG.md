@@ -1,38 +1,6 @@
 # Changelog
-<<<<<<< HEAD
-=======
 
-## Unreleased 
-- **Note:** Unreleased changes are checked in but not part of an official release (available through the Arduino IDE or PlatfomIO) yet. This allows you to test WiP features and give feedback to them.
--
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
-
-## [2.0.1] - 2022-04-22
-- Fixed bug – `longclick_detected_counter` is not properly initalized as mentioned in [#37](https://github.com/LennartHennigs/Button2/pull/37)
-
-## [2.0.0] - 2022-04-04
-- House keeping
-    - Refactored `loop()` - cleaned up conditions, should be easier to understand now
-    - Renamed `getAttachedPin()`to `getPin()` (BREAKING CHANGE)
-    - Fixed a bug that the first click type was falsly returned by `getClickType()`
-- Possibility define your own "_getState" function for non standard buttons as suggested in [#32](https://github.com/LennartHennigs/Button2/issues/32)
-    - Refactored `isPressedRaw()` to also use `_getState()`
-    - Introduced a `VIRTUAL_PIN` constant – using it in the constructor or `begin()` will skip pin initalization
-    - Added `setButtonStateFunction(StateCallbackFunction f)` to assign your own "_getState" function
-    - Added [CustomButtonStateHandler.ino](https://github.com/LennartHennigs/Button2/blob/master/examples/CustomButtonStateHandler/CustomButtonStateHandler.ino) example 
-- Improved click type handling 
-    - Added `clickType`      and removed constants for determining the click type (BREAKING CHANGE)
-    - Renamed `getClickType()` to `getType()` (BREAKING CHANGE)
-    - Added `clickToString` function to print the `clickType` enum value
-- Added IDs button instances
-    - Added `getID()`, it returns an auto incremented `int` ID for the button, as suggest in [#34](https://github.com/LennartHennigs/Button2/pull/34)
-    - Added `setID()`, it allows you to set your own IDs – but then you need to ensure its uniqeness yourself
-- Added possibility to use the button class inside your main `loop()` function (instead of using callback handlers)
-  - Added `bool wasPressed()` function
-  - Added `read(bool keepState = false)`, it returns the button press type (as a `clickType` enum)
-  - Added `wait(bool keepState = false)`, it combines `wasPressed()` and `read()` methods and halts execution until a button press took place
-  - Added `waitForClick()`, `waitForDouble()`, `waitForTriple()` and `waitForLong()` as well
-  - Added [ButtonLoop.ino](https://github.com/LennartHennigs/Button2/blob/master/examples/ButtonLoop/ButtonLoop.ino) example to showcase the "loop" functions
+## Unreleased
 
 - **Note:** Unreleased changes are checked in but not part of an official release (available through the Arduino IDE or PlatfomIO) yet. This allows you to test WiP features and give feedback to them.
 
@@ -82,10 +50,7 @@
 - Use `std::function` to allow C++ 11 lambda functions as suggested by [jacobdekeizer](https://github.com/jacobdekeizer) in pull request [#29](https://github.com/LennartHennigs/Button2/pull/29)
 
 ## [1.6.3] - 2021-09-12
-<<<<<<< HEAD
 
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 - added two new examples: [MultiHandlerTwoButtons.ino](https://github.com/LennartHennigs/Button2/blob/master/examples/MultiHandlerTwoButtons/MultiHandlerTwoButtons.ino) and [TrackDualButtonClick.ino](https://github.com/LennartHennigs/Button2/blob/master/examples/TrackDualButtonClick/TrackDualButtonClick.ino)
 - added examples to the [README.md](https://github.com/LennartHennigs/Button2/blob/master/README.md)
 - initialized `pin` in `_getState()`

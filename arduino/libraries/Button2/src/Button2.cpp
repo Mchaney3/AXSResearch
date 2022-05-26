@@ -31,10 +31,7 @@ Button2::Button2(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean is
 
 void Button2::begin(byte attachTo, byte buttonMode /* = INPUT_PULLUP */, boolean isCapacitive /* = false */, boolean activeLow /* = true */) {  
   pin = attachTo;
-<<<<<<< HEAD
   id = _nextID++;
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   longclick_detected_counter = 0;
   longclick_detected_retriggerable = false;
   _pressedState = activeLow ? LOW : HIGH;

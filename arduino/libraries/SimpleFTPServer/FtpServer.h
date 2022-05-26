@@ -405,11 +405,7 @@
 	#define FTP_FILE_READ_WRITE FILE_WRITE
 	#define FTP_FILE_WRITE_APPEND FILE_WRITE
 	#define FTP_FILE_WRITE_CREATE FILE_WRITE
-<<<<<<< HEAD
 	#define FILENAME_LENGTH 255
-=======
-
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #elif (STORAGE_TYPE == STORAGE_FATFS)
 	#include <FatFs.h>
 	#include <sdios.h>

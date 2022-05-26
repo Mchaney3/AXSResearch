@@ -73,19 +73,6 @@ void Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
     _csPortSet = (PORTreg_t)&sio_hw->gpio_set;
     _csPortClr = (PORTreg_t)&sio_hw->gpio_clr;
   }
-<<<<<<< HEAD
-=======
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPortSet = (PORTreg_t)_dcPortSet;
-    _csPortClr = (PORTreg_t)_dcPortClr;
-    _csPinMask = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32C3)
   _dcPinMask = digitalPinToBitMask(_dc);
   _dcPortSet = (PORTreg_t)&GPIO.out_w1ts;
@@ -148,10 +135,7 @@ void Arduino_HWSPI::begin(int32_t speed, int8_t dataMode)
 #else  // !HAS_PORT_SET_CLR
   _dcPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_dc));
   _dcPinMaskSet = digitalPinToBitMask(_dc);
-<<<<<<< HEAD
   _dcPinMaskClr = ~_dcPinMaskSet;
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_cs != GFX_NOT_DEFINED)
   {
     _csPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_cs));

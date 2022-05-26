@@ -26,11 +26,8 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
   }
   pinMode(_sck, OUTPUT);
   digitalWrite(_sck, LOW);
-<<<<<<< HEAD
   pinMode(_mosi, OUTPUT);
   digitalWrite(_mosi, LOW);
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     pinMode(_miso, INPUT);
@@ -39,22 +36,8 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
 #if defined(USE_FAST_PINIO)
 #if defined(HAS_PORT_SET_CLR)
 #if defined(ARDUINO_ARCH_NRF52840)
-<<<<<<< HEAD
   uint32_t pin;
   NRF_GPIO_Type *reg;
-=======
-  uint32_t pin = digitalPinToPinName((pin_size_t)_sck);
-  NRF_GPIO_Type *reg = nrf_gpio_pin_port_decode(&pin);
-  _sckPortSet = &reg->OUTSET;
-  _sckPortClr = &reg->OUTCLR;
-  _sckPinMask = 1UL << pin;
-  pin = digitalPinToPinName((pin_size_t)_mosi);
-  reg = nrf_gpio_pin_port_decode(&pin);
-  nrf_gpio_cfg_output(pin);
-  _mosiPortSet = &reg->OUTSET;
-  _mosiPortClr = &reg->OUTCLR;
-  _mosiPinMask = 1UL << pin;
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_dc != GFX_NOT_DEFINED)
   {
     pin = digitalPinToPinName((pin_size_t)_dc);
@@ -71,7 +54,6 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _csPortSet = &reg->OUTSET;
     _csPortClr = &reg->OUTCLR;
   }
-<<<<<<< HEAD
   pin = digitalPinToPinName((pin_size_t)_sck);
   reg = nrf_gpio_pin_port_decode(&pin);
   _sckPinMask = 1UL << pin;
@@ -82,8 +64,6 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
   _mosiPinMask = 1UL << pin;
   _mosiPortSet = &reg->OUTSET;
   _mosiPortClr = &reg->OUTCLR;
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     pin = digitalPinToPinName((pin_size_t)_miso);
@@ -92,58 +72,24 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _misoPort = &reg->IN;
   }
 #elif defined(ARDUINO_RASPBERRY_PI_PICO)
-<<<<<<< HEAD
   if (_dc != GFX_NOT_DEFINED)
   {
     _dcPinMask = digitalPinToBitMask(_dc);
     _dcPortSet = (PORTreg_t)&sio_hw->gpio_set;
     _dcPortClr = (PORTreg_t)&sio_hw->gpio_clr;
   }
-=======
-  _sckPinMask = digitalPinToBitMask(_sck);
-  _mosiPinMask = digitalPinToBitMask(_mosi);
-  _sckPortSet = (PORTreg_t)&sio_hw->gpio_set;
-  _sckPortClr = (PORTreg_t)&sio_hw->gpio_clr;
-  _mosiPortSet = (PORTreg_t)&sio_hw->gpio_set;
-  _mosiPortClr = (PORTreg_t)&sio_hw->gpio_clr;
-  _dcPinMask = digitalPinToBitMask(_dc);
-  _dcPortSet = (PORTreg_t)&sio_hw->gpio_set;
-  _dcPortClr = (PORTreg_t)&sio_hw->gpio_clr;
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_cs != GFX_NOT_DEFINED)
   {
     _csPinMask = digitalPinToBitMask(_cs);
     _csPortSet = (PORTreg_t)&sio_hw->gpio_set;
     _csPortClr = (PORTreg_t)&sio_hw->gpio_clr;
   }
-<<<<<<< HEAD
   _sckPinMask = digitalPinToBitMask(_sck);
   _sckPortSet = (PORTreg_t)&sio_hw->gpio_set;
   _sckPortClr = (PORTreg_t)&sio_hw->gpio_clr;
   _mosiPinMask = digitalPinToBitMask(_mosi);
   _mosiPortSet = (PORTreg_t)&sio_hw->gpio_set;
   _mosiPortClr = (PORTreg_t)&sio_hw->gpio_clr;
-=======
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPortSet = (PORTreg_t)_dcPortSet;
-    _csPortClr = (PORTreg_t)_dcPortClr;
-    _csPinMask = 0;
-  }
-  if (_miso != GFX_NOT_DEFINED)
-  {
-    _misoPort = portInputRegister(_miso);
-    _misoPinMask = digitalPinToBitMask(_miso);
-  }
-  else
-  {
-    _misoPort = portInputRegister(_miso);
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     _misoPinMask = digitalPinToBitMask(_miso);
@@ -159,10 +105,6 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
-<<<<<<< HEAD
-=======
-#elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32C3)
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   _sckPinMask = digitalPinToBitMask(_sck);
   _sckPortSet = (PORTreg_t)&GPIO.out_w1ts;
   _sckPortClr = (PORTreg_t)&GPIO.out_w1tc;
@@ -176,7 +118,6 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
   }
 #elif defined(ESP32)
   _dcPinMask = digitalPinToBitMask(_dc);
-<<<<<<< HEAD
   if (_dc >= 32)
   {
     _dcPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
@@ -194,40 +135,11 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
   else if (_cs != GFX_NOT_DEFINED)
-=======
-  _dcPortSet = (PORTreg_t)&GPIO.out_w1ts;
-  _dcPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  if (_cs != GFX_NOT_DEFINED)
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   {
     _csPinMask = digitalPinToBitMask(_cs);
     _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
-<<<<<<< HEAD
-=======
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPortSet = _dcPortSet;
-    _csPortClr = _dcPortClr;
-    _csPinMask = 0;
-  }
-  if (_miso != GFX_NOT_DEFINED)
-  {
-    _misoPinMask = digitalPinToBitMask(_miso);
-    _misoPort = (PORTreg_t)GPIO_IN_REG;
-  }
-  else
-  {
-    _misoPinMask = 0;
-    _misoPort = (PORTreg_t)GPIO_IN_REG;
-  }
-#elif defined(ESP32)
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   _sckPinMask = digitalPinToBitMask(_sck);
   _mosiPinMask = digitalPinToBitMask(_mosi);
   if (_sck >= 32)
@@ -250,59 +162,12 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _mosiPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _mosiPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
-<<<<<<< HEAD
-=======
-  _dcPinMask = digitalPinToBitMask(_dc);
-  if (_dc >= 32)
-  {
-    _dcPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _dcPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else
-  {
-    _dcPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _dcPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  if (_cs >= 32)
-  {
-    _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else if (_cs != GFX_NOT_DEFINED)
-  {
-    _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPortSet = (PORTreg_t)_dcPortSet;
-    _csPortClr = (PORTreg_t)_dcPortClr;
-    _csPinMask = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     _misoPinMask = digitalPinToBitMask(_miso);
     _misoPort = (PORTreg_t)portInputRegister(digitalPinToPort(_miso));
   }
 #elif defined(CORE_TEENSY)
-<<<<<<< HEAD
-=======
-#if !defined(KINETISK)
-  _sckPinMask = digitalPinToBitMask(_sck);
-  _mosiPinMask = digitalPinToBitMask(_mosi);
-#endif
-  _sckPortSet = portSetRegister(_sck);
-  _sckPortClr = portClearRegister(_sck);
-  _mosiPortSet = portSetRegister(_mosi);
-  _mosiPortClr = portClearRegister(_mosi);
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_dc != GFX_NOT_DEFINED)
   {
 #if !defined(KINETISK)
@@ -311,17 +176,6 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _dcPortSet = portSetRegister(_dc);
     _dcPortClr = portClearRegister(_dc);
   }
-<<<<<<< HEAD
-=======
-  else
-  {
-#if !defined(KINETISK)
-    _dcPinMask = 0;
-#endif
-    _dcPortSet = _sckPortSet;
-    _dcPortClr = _sckPortClr;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_cs != GFX_NOT_DEFINED)
   {
 #if !defined(KINETISK)
@@ -346,59 +200,24 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
     _misoPort = (PORTreg_t)portInputRegister(digitalPinToPort(_miso));
   }
 #else  // !CORE_TEENSY
-<<<<<<< HEAD
-=======
-  _sckPinMask = digitalPinToBitMask(_sck);
-  _mosiPinMask = digitalPinToBitMask(_mosi);
-  _sckPortSet = &(PORT->Group[g_APinDescription[_sck].ulPort].OUTSET.reg);
-  _sckPortClr = &(PORT->Group[g_APinDescription[_sck].ulPort].OUTCLR.reg);
-  _mosiPortSet = &(PORT->Group[g_APinDescription[_mosi].ulPort].OUTSET.reg);
-  _mosiPortClr = &(PORT->Group[g_APinDescription[_mosi].ulPort].OUTCLR.reg);
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_dc != GFX_NOT_DEFINED)
   {
     _dcPinMask = digitalPinToBitMask(_dc);
     _dcPortSet = &(PORT->Group[g_APinDescription[_dc].ulPort].OUTSET.reg);
     _dcPortClr = &(PORT->Group[g_APinDescription[_dc].ulPort].OUTCLR.reg);
   }
-<<<<<<< HEAD
-=======
-  else
-  {
-    // No D/C line defined; 9-bit SPI.
-    // Assign a valid GPIO register (though not used for DC), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _dc and possibly branching.
-    _dcPortSet = _sckPortSet;
-    _dcPortClr = _sckPortClr;
-    _dcPinMask = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_cs != GFX_NOT_DEFINED)
   {
     _csPinMask = digitalPinToBitMask(_cs);
     _csPortSet = &(PORT->Group[g_APinDescription[_cs].ulPort].OUTSET.reg);
     _csPortClr = &(PORT->Group[g_APinDescription[_cs].ulPort].OUTCLR.reg);
   }
-<<<<<<< HEAD
   _sckPinMask = digitalPinToBitMask(_sck);
   _sckPortSet = &(PORT->Group[g_APinDescription[_sck].ulPort].OUTSET.reg);
   _sckPortClr = &(PORT->Group[g_APinDescription[_sck].ulPort].OUTCLR.reg);
   _mosiPinMask = digitalPinToBitMask(_mosi);
   _mosiPortSet = &(PORT->Group[g_APinDescription[_mosi].ulPort].OUTSET.reg);
   _mosiPortClr = &(PORT->Group[g_APinDescription[_mosi].ulPort].OUTCLR.reg);
-=======
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPortSet = _sckPortSet;
-    _csPortClr = _sckPortClr;
-    _csPinMask = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     _misoPinMask = digitalPinToBitMask(_miso);
@@ -406,55 +225,24 @@ void Arduino_SWSPI::begin(int32_t speed, int8_t dataMode)
   }
 #endif // end !CORE_TEENSY
 #else  // !HAS_PORT_SET_CLR
-<<<<<<< HEAD
-=======
-  _sckPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_sck));
-  _sckPinMaskSet = digitalPinToBitMask(_sck);
-  _mosiPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_mosi));
-  _mosiPinMaskSet = digitalPinToBitMask(_mosi);
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_dc != GFX_NOT_DEFINED)
   {
     _dcPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_dc));
     _dcPinMaskSet = digitalPinToBitMask(_dc);
     _dcPinMaskClr = ~_dcPinMaskSet;
   }
-<<<<<<< HEAD
-=======
-  else
-  {
-    // No D/C line defined; 9-bit SPI.
-    // Assign a valid GPIO register (though not used for DC), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _dc and possibly branching.
-    _dcPort = _sckPort;
-    _dcPinMaskSet = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_cs != GFX_NOT_DEFINED)
   {
     _csPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_cs));
     _csPinMaskSet = digitalPinToBitMask(_cs);
     _csPinMaskClr = ~_csPinMaskSet;
   }
-<<<<<<< HEAD
   _sckPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_sck));
   _sckPinMaskSet = digitalPinToBitMask(_sck);
   _sckPinMaskClr = ~_sckPinMaskSet;
   _mosiPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_mosi));
   _mosiPinMaskSet = digitalPinToBitMask(_mosi);
   _mosiPinMaskClr = ~_mosiPinMaskSet;
-=======
-  else
-  {
-    // No chip-select line defined; might be permanently tied to GND.
-    // Assign a valid GPIO register (though not used for CS), and an
-    // empty pin bitmask...the nonsense bit-twiddling might be faster
-    // than checking _cs and possibly branching.
-    _csPort = _sckPort;
-    _csPinMaskSet = 0;
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   if (_miso != GFX_NOT_DEFINED)
   {
     _misoPort = (PORTreg_t)portInputRegister(digitalPinToPort(_miso));

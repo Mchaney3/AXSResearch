@@ -71,10 +71,6 @@ protected:
   uint8_t _xStart, _yStart;
   int16_t _currentX, _currentY;
   uint16_t _currentW, _currentH;
-<<<<<<< HEAD
-=======
-  bool _ips;
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
   int8_t _override_datamode = GFX_NOT_DEFINED;
 
 private:

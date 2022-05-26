@@ -45,12 +45,8 @@
  * Arduino Nano, Micro and more: CS:  9, DC:  8, RST:  7, BL:  6
  * ESP32 various dev board     : CS:  5, DC: 27, RST: 33, BL: 22
  * ESP32-C3 various dev board  : CS:  7, DC:  2, RST:  1, BL:  3
-<<<<<<< HEAD
  * ESP32-S2 various dev board  : CS: 34, DC: 35, RST: 33, BL: 21
  * ESP32-S3 various dev board  : CS: 40, DC: 41, RST: 42, BL: 48
-=======
- * ESP32-S2/3 various dev board: CS: 34, DC: 26, RST: 33, BL: 21
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
  * ESP8266 various dev board   : CS: 15, DC:  4, RST:  2, BL:  5
  * Raspberry Pi Pico dev board : CS: 17, DC: 27, RST: 26, BL: 28
  * RTL8720 BW16 old patch core : CS: 18, DC: 17, RST:  2, BL: 23
@@ -111,13 +107,8 @@ void setup()
   gfx->fillScreen(BLACK);
 
 #ifdef GFX_BL
-<<<<<<< HEAD
   pinMode(GFX_BL, OUTPUT);
   digitalWrite(GFX_BL, HIGH);
-=======
-    pinMode(GFX_BL, OUTPUT);
-    digitalWrite(GFX_BL, HIGH);
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #endif
 
 /* Wio Terminal */
@@ -189,15 +180,9 @@ void loop()
         int16_t y = (gfx->height() - gif->height) / 2;
 
         Serial.println(F("GIF video start"));
-<<<<<<< HEAD
         int32_t t_fstart, t_delay = 0, t_real_delay, delay_until;
         int32_t res = 1;
         int32_t duration = 0, remain = 0;
-=======
-        uint32_t t_fstart, t_delay = 0, t_real_delay, delay_until;
-        int32_t res = 1;
-        uint32_t duration = 0, remain = 0;
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
         while (res > 0)
         {
           t_fstart = millis();

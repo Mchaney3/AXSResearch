@@ -326,13 +326,7 @@ void Adafruit_SPIDevice::endTransactionWithDeassertingCS() {
 bool Adafruit_SPIDevice::write(const uint8_t *buffer, size_t len,
                                const uint8_t *prefix_buffer,
                                size_t prefix_len) {
-<<<<<<< HEAD
   beginTransactionWithAssertingCS();
-=======
-  if (_spi) {
-    _spi->beginTransaction(*_spiSetting);
-  }
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
   // do the writing
 #if defined(ARDUINO_ARCH_ESP32)

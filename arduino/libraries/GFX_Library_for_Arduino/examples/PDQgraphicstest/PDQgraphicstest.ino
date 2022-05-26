@@ -12,13 +12,10 @@
 #include <Arduino_GFX_Library.h>
 
 // #define ESP32_LCDKIT_SPI
-<<<<<<< HEAD
 // #define ESP32_LCDKIT_PAR8A
 // #define ESP32_LCDKIT_PAR8B
 // #define ESP32_LCDKIT_PAR16
 // #define ESP32_S3_RGB
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 // #define ESP32_S3_EYE
 // #define MAKERFABS_TFT_TOUCH_3_5
 // #define TTGO_T_DISPLAY
@@ -28,7 +25,6 @@
 Arduino_DataBus *bus = new Arduino_ESP32SPI(19 /* DC */, 5 /* CS */, 22 /* SCK */, 21 /* MOSI */, 27 /* MISO */);
 Arduino_GFX *gfx = new Arduino_ILI9341(bus, 18 /* RST */, 1 /* rotation */);
 
-<<<<<<< HEAD
 #elif defined(ESP32_LCDKIT_PAR8A)
 Arduino_DataBus *bus = new Arduino_ESP32I2S8(5 /* DC */, GFX_NOT_DEFINED /* CS */, 18 /* WR */, GFX_NOT_DEFINED /* RD */, 19 /* D0 */, 21 /* D1 */, 0 /* D2 */, 22 /* D3 */, 23 /* D4 */, 33 /* D5 */, 32 /* D6 */, 27 /* D7 */);
 Arduino_GFX *gfx = new Arduino_ILI9341(bus, GFX_NOT_DEFINED /* RST */, 1 /* rotation */);
@@ -57,9 +53,6 @@ Arduino_ST7701_RGBPanel *gfx = new Arduino_ST7701_RGBPanel(bus, GFX_NOT_DEFINED,
 
 #elif defined(ESP32_S3_EYE)
 #define TFT_BL 48
-=======
-#elif defined(ESP32_S3_EYE)
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 Arduino_DataBus *bus = new Arduino_ESP32SPI(43 /* DC */, 44 /* CS */, 21 /* SCK */, 47 /* MOSI */, GFX_NOT_DEFINED /* MISO */);
 Arduino_GFX *gfx = new Arduino_ST7789(bus, GFX_NOT_DEFINED, 0 /* rotation */, true /* IPS */, 240 /* width */, 240 /* height */, 0 /* col offset 1 */, 0 /* row offset 1 */, 0 /* col offset 2 */, 80 /* row offset 2 */);
 
@@ -125,7 +118,6 @@ Arduino_GFX *gfx = new Arduino_ST7789(bus, GFX_NOT_DEFINED /* RST */, 0 /* rotat
 #define TFT_DC 27 // GFX_NOT_DEFINED for display without DC pin (9-bit SPI)
 #define TFT_RST 33
 #define TFT_BL 22
-<<<<<<< HEAD
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2)
 #define TFT_CS 34 // GFX_NOT_DEFINED for display without CS pin
 #define TFT_DC 35
@@ -136,13 +128,6 @@ Arduino_GFX *gfx = new Arduino_ST7789(bus, GFX_NOT_DEFINED /* RST */, 0 /* rotat
 #define TFT_DC 41
 #define TFT_RST 42
 #define TFT_BL 48
-=======
-#elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
-#define TFT_CS 34 // GFX_NOT_DEFINED for display without CS pin
-#define TFT_DC 26
-#define TFT_RST 33
-#define TFT_BL 21
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #elif defined(ESP32) && (CONFIG_IDF_TARGET_ESP32C3)
 #define TFT_CS 7 // GFX_NOT_DEFINED for display without CS pin
 #define TFT_DC 2
@@ -169,11 +154,7 @@ Arduino_GFX *gfx = new Arduino_ST7789(bus, GFX_NOT_DEFINED /* RST */, 0 /* rotat
 #define TFT_DC 14
 #define TFT_RST 15
 #define TFT_BL 13
-<<<<<<< HEAD
 #else             // old version
-=======
-#else // old version
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 #define TFT_CS 18 // GFX_NOT_DEFINED for display without CS pin
 #define TFT_DC 17
 #define TFT_RST 2
@@ -241,7 +222,6 @@ Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS);
 
 // ESP32S2 parallel 16-bit
 // Display D0-D15 connect to GPIO 0-15
-<<<<<<< HEAD
 // Arduino_DataBus *bus = new Arduino_ESP32S2PAR16(TFT_DC, TFT_CS, 16 /* WR */, 17 /* RD */);
 
 // ESP32S3 i80 LCD parallel 16-bit
@@ -249,9 +229,6 @@ Arduino_DataBus *bus = new Arduino_HWSPI(TFT_DC, TFT_CS);
 //     TFT_DC, TFT_CS, 16 /* WR */, 17 /* RD */,
 //     0 /* D0 */, 1 /* D1 */, 2 /* D2 */, 3 /* D3 */, 4 /* D4 */, 5 /* D5 */, 6 /* D6 */, 7 /* D7 */,
 //     8 /* D8 */, 9 /* D9 */, 10 /* D10 */, 11 /* D11 */, 12 /* D12 */, 13 /* D13 */, 14 /* D14 */, 15 /* D15 */);
-=======
-// Arduino_DataBus *bus = new Arduino_ESP32S2PAR16(TFT_DC, TFT_CS, 16 /* WR */, GFX_NOT_DEFINED /* RD */);
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 
 // Raspberry Pi Pico parallel 8-bit
 // Display D0-D7 connect to GPIO 0-7

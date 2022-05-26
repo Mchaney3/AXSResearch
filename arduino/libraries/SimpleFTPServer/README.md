@@ -11,11 +11,8 @@
  - Wio Terminal (SdFat 2, Seed SD, and native FAT)
 
 #### Changelog
-<<<<<<< HEAD
 - 2022-05-21 2.1.1 Minor fix 
 - 2022-03-30 2.1.0 Add UTF8 support and enabled It by default (Thanks to @plaber)
-=======
->>>>>>> 6843b833a95010014bb3113ca59dda3b5e1c3663
 - 2022-03-30 2.0.0 Complete support for STM32 with SD and SPI Flash minor bux fix and HELP command support
 - 2022-03-17 1.3.0 Fix enc28j60 and w5500 support and restructuring for local settings
 - 2022-02-25 1.2.1 Fix anonymous user begin and fix SPIFFS wrong display
