@@ -4,7 +4,7 @@
  */
 #include "Arduino_ESP32PAR8Q.h"
 
-#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
 
 Arduino_ESP32PAR8Q::Arduino_ESP32PAR8Q(
     int8_t dc, int8_t cs, int8_t wr, int8_t rd,
@@ -24,14 +24,14 @@ void Arduino_ESP32PAR8Q::begin(int32_t speed, int8_t dataMode)
     _dcPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _dcPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_dc >= 0)
+  else if (_dc != GFX_NOT_DEFINED)
   {
     _dcPinMask = digitalPinToBitMask(_dc);
     _dcPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _dcPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
 
-  if (_cs >= 0)
+  if (_cs != GFX_NOT_DEFINED)
   {
     pinMode(_cs, OUTPUT);
     digitalWrite(_cs, HIGH); // disable chip select
@@ -42,17 +42,11 @@ void Arduino_ESP32PAR8Q::begin(int32_t speed, int8_t dataMode)
     _csPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_cs >= 0)
+  else if (_cs != GFX_NOT_DEFINED)
   {
     _csPinMask = digitalPinToBitMask(_cs);
     _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  else
-  {
-    _csPinMask = 0;
-    _csPortSet = _dcPortSet;
-    _csPortClr = _dcPortClr;
   }
 
   pinMode(_wr, OUTPUT);
@@ -63,35 +57,17 @@ void Arduino_ESP32PAR8Q::begin(int32_t speed, int8_t dataMode)
     _wrPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _wrPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_wr >= 0)
+  else
   {
     _wrPinMask = digitalPinToBitMask(_wr);
     _wrPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _wrPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
 
-  if (_rd >= 0)
+  if (_rd != GFX_NOT_DEFINED)
   {
     pinMode(_rd, OUTPUT);
     digitalWrite(_rd, HIGH);
-  }
-  if (_rd >= 32)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _rdPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else if (_rd >= 0)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _rdPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  else
-  {
-    _rdPinMask = 0;
-    _rdPortSet = _dcPortSet;
-    _rdPortClr = _dcPortClr;
   }
 
   // TODO: check pin range 0-31
@@ -198,7 +174,10 @@ void Arduino_ESP32PAR8Q::writeRepeat(uint16_t p, uint32_t len)
     uint32_t setMask = _xset_mask[_data16.msb];
     *_dataPortClr = _dataClrMask;
     *_dataPortSet = setMask;
-    while (len--)
+    *_wrPortSet = _wrPinMask;
+    *_wrPortClr = _wrPinMask;
+    *_wrPortSet = _wrPinMask;
+    while (--len)
     {
       *_wrPortClr = _wrPinMask;
       *_wrPortSet = _wrPinMask;
@@ -334,12 +313,18 @@ INLINE void Arduino_ESP32PAR8Q::DC_LOW(void)
 
 INLINE void Arduino_ESP32PAR8Q::CS_HIGH(void)
 {
-  *_csPortSet = _csPinMask;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPortSet = _csPinMask;
+  }
 }
 
 INLINE void Arduino_ESP32PAR8Q::CS_LOW(void)
 {
-  *_csPortClr = _csPinMask;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPortClr = _csPinMask;
+  }
 }
 
-#endif // #if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)

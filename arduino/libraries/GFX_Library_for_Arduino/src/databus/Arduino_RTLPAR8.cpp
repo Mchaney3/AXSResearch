@@ -22,17 +22,12 @@ void Arduino_RTLPAR8::begin(int32_t speed, int8_t dataMode)
   _dcPinMaskSet = digitalPinToBitMask(_dc);
   _dcPinMaskClr = ~_dcPinMaskSet;
 
-  if (_cs >= 0)
+  if (_cs != GFX_NOT_DEFINED)
   {
     pinMode(_cs, OUTPUT);
     digitalWrite(_cs, HIGH); // disable chip select
     _csPort = (PORTreg_t)portOutputRegister(digitalPinToPort(_cs));
     _csPinMaskSet = digitalPinToBitMask(_cs);
-  }
-  else
-  {
-    _csPort = _dcPort;
-    _csPinMaskSet = 0;
   }
   _csPinMaskClr = ~_csPinMaskSet;
 
@@ -42,7 +37,7 @@ void Arduino_RTLPAR8::begin(int32_t speed, int8_t dataMode)
   _wrPinMaskSet = digitalPinToBitMask(_wr);
   _wrPinMaskClr = ~_wrPinMaskSet;
 
-  if (_rd >= 0)
+  if (_rd != GFX_NOT_DEFINED)
   {
     pinMode(_rd, OUTPUT);
     digitalWrite(_rd, HIGH);
@@ -340,12 +335,18 @@ INLINE void Arduino_RTLPAR8::DC_LOW(void)
 
 INLINE void Arduino_RTLPAR8::CS_HIGH(void)
 {
-  *_csPort |= _csPinMaskSet;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPort |= _csPinMaskSet;
+  }
 }
 
 INLINE void Arduino_RTLPAR8::CS_LOW(void)
 {
-  *_csPort &= _csPinMaskClr;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPort &= _csPinMaskClr;
+  }
 }
 
 #endif // #ifdef RTL8722DM

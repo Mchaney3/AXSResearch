@@ -484,9 +484,9 @@ namespace lgfx
 
 
     [[deprecated("use IFont")]]
-    void setCursor( int32_t x, int32_t y, uint8_t      font) { _filled_x = 0; _cursor_x = x; _cursor_y = y; setFont(fontdata[font]); }
-    void setCursor( int32_t x, int32_t y, const IFont* font) { _filled_x = 0; _cursor_x = x; _cursor_y = y; setFont(font); }
-    void setCursor( int32_t x, int32_t y)                    { _filled_x = 0; _cursor_x = x; _cursor_y = y; }
+    void setCursor( int32_t x, int32_t y, uint8_t      font) { setCursor(x, y); setFont(fontdata[font]); }
+    void setCursor( int32_t x, int32_t y, const IFont* font) { setCursor(x, y); setFont(font); }
+    void setCursor( int32_t x, int32_t y)                    { _decoderState = utf8_state0; _filled_x = 0; _cursor_x = x; _cursor_y = y; }
     int32_t getCursorX(void) const { return _cursor_x; }
     int32_t getCursorY(void) const { return _cursor_y; }
     void setTextStyle(const TextStyle& text_style) { _text_style = text_style; }
@@ -523,6 +523,9 @@ namespace lgfx
     int32_t fontHeight(uint8_t font) const { return (int32_t)(((const BaseFont*)fontdata[font])->height * _text_style.size_y); }
     int32_t fontHeight(const IFont* font) const;
     int32_t fontHeight(void) const { return (int32_t)(_font_metrics.height * _text_style.size_y); }
+    int32_t fontWidth(uint8_t font) const { return (int32_t)(((const BaseFont*)fontdata[font])->width * _text_style.size_x); }
+    int32_t fontWidth(const IFont* font) const;
+    int32_t fontWidth(void) const { return (int32_t)(_font_metrics.width * _text_style.size_x); }
     int32_t textLength(const char *string, int32_t width);
     int32_t textWidth(const char *string) { return textWidth(string, _font); };
     int32_t textWidth(const char *string, const IFont* font);
@@ -776,13 +779,13 @@ namespace lgfx
 
     bool _swapBytes = false;
 
-    enum utf8_decode_state_t
+    enum utf8_decode_state_t : uint8_t
     { utf8_state0 = 0
     , utf8_state1 = 1
     , utf8_state2 = 2
     };
     utf8_decode_state_t _decoderState = utf8_state0;   // UTF8 decoder state
-    uint_fast16_t _unicode_buffer = 0;   // Unicode code-point buffer
+    uint16_t _unicode_buffer = 0;   // Unicode code-point buffer
 
     int32_t _cursor_x = 0;  // print text cursor
     int32_t _cursor_y = 0;
@@ -1114,7 +1117,7 @@ namespace lgfx
 
 //----------------------------------------------------------------------------
 
-  class Panel_Device;
+  struct Panel_Device;
 
   class LGFX_Device : public LovyanGFX
   {
@@ -1174,7 +1177,7 @@ namespace lgfx
       if (index >= count) return 0;
       if (x) *x = tp[index].x;
       if (y) *y = tp[index].y;
-      return index;
+      return count;
     }
 
     template <typename T>

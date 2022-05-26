@@ -55,7 +55,6 @@ void Arduino_GC9106::setRotation(uint8_t r)
     r = GC9106_MADCTL_BGR;
     break;
   }
-
   _bus->beginWrite();
   _bus->writeCommand(GC9106_MADCTL);
   _bus->write(r);
@@ -81,7 +80,7 @@ void Arduino_GC9106::displayOff(void)
 
 void Arduino_GC9106::tftInit()
 {
-  if (_rst >= 0)
+  if (_rst != GFX_NOT_DEFINED)
   {
     pinMode(_rst, OUTPUT);
     digitalWrite(_rst, HIGH);

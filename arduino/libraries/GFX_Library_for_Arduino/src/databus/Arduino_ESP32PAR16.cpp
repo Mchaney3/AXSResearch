@@ -1,6 +1,6 @@
 #include "Arduino_ESP32PAR16.h"
 
-#if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
 
 Arduino_ESP32PAR16::Arduino_ESP32PAR16(
     int8_t dc, int8_t cs, int8_t wr, int8_t rd,
@@ -22,14 +22,14 @@ void Arduino_ESP32PAR16::begin(int32_t speed, int8_t dataMode)
     _dcPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _dcPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_dc >= 0)
+  else
   {
     _dcPinMask = digitalPinToBitMask(_dc);
     _dcPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _dcPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
 
-  if (_cs >= 0)
+  if (_cs != GFX_NOT_DEFINED)
   {
     pinMode(_cs, OUTPUT);
     digitalWrite(_cs, HIGH); // disable chip select
@@ -40,17 +40,11 @@ void Arduino_ESP32PAR16::begin(int32_t speed, int8_t dataMode)
     _csPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_cs >= 0)
+  else if (_cs != GFX_NOT_DEFINED)
   {
     _csPinMask = digitalPinToBitMask(_cs);
     _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  else
-  {
-    _csPinMask = 0;
-    _csPortSet = _dcPortSet;
-    _csPortClr = _dcPortClr;
   }
 
   pinMode(_wr, OUTPUT);
@@ -61,38 +55,19 @@ void Arduino_ESP32PAR16::begin(int32_t speed, int8_t dataMode)
     _wrPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
     _wrPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
   }
-  else if (_wr >= 0)
+  else
   {
     _wrPinMask = digitalPinToBitMask(_wr);
     _wrPortSet = (PORTreg_t)&GPIO.out_w1ts;
     _wrPortClr = (PORTreg_t)&GPIO.out_w1tc;
   }
 
-  if (_rd >= 0)
+  if (_rd != GFX_NOT_DEFINED)
   {
     pinMode(_rd, OUTPUT);
     digitalWrite(_rd, HIGH);
   }
-  if (_rd >= 32)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _rdPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else if (_rd >= 0)
-  {
-    _rdPinMask = digitalPinToBitMask(_rd);
-    _rdPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _rdPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  else
-  {
-    _rdPinMask = 0;
-    _rdPortSet = _dcPortSet;
-    _rdPortClr = _dcPortClr;
-  }
 
-  // TODO: check pin range 0-31
   pinMode(_d0, OUTPUT);
   pinMode(_d1, OUTPUT);
   pinMode(_d2, OUTPUT);
@@ -111,82 +86,325 @@ void Arduino_ESP32PAR16::begin(int32_t speed, int8_t dataMode)
   pinMode(_d15, OUTPUT);
 
   // INIT 16-bit mask
-  _dataClrMask = (1 << _d0) | (1 << _d1) | (1 << _d2) | (1 << _d3) | (1 << _d4) | (1 << _d5) | (1 << _d6) | (1 << _d7) | (1 << _d8) | (1 << _d9) | (1 << _d10) | (1 << _d11) | (1 << _d12) | (1 << _d13) | (1 << _d14) | (1 << _d15);
+  _data1ClrMask = 0;
+  _data2ClrMask = 0;
+  if (_d0 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d0);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d0);
+  }
+  if (_d1 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d1);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d1);
+  }
+  if (_d2 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d2);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d2);
+  }
+  if (_d3 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d3);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d3);
+  }
+  if (_d4 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d4);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d4);
+  }
+  if (_d5 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d5);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d5);
+  }
+  if (_d6 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d6);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d6);
+  }
+  if (_d7 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d7);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d7);
+  }
+  if (_d8 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d8);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d8);
+  }
+  if (_d9 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d9);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d9);
+  }
+  if (_d10 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d10);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d10);
+  }
+  if (_d11 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d11);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d11);
+  }
+  if (_d12 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d12);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d12);
+  }
+  if (_d13 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d13);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d13);
+  }
+  if (_d14 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d14);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d14);
+  }
+  if (_d15 >= 32)
+  {
+    _data2ClrMask |= digitalPinToBitMask(_d15);
+  }
+  else
+  {
+    _data1ClrMask |= digitalPinToBitMask(_d15);
+  }
+
   for (int32_t c = 0; c < 256; c++)
   {
-    _xset_mask_lo[c] = 0;
+    _xset_mask1_lo[c] = 0;
+    _xset_mask2_lo[c] = 0;
     if (c & 0x01)
     {
-      _xset_mask_lo[c] |= (1 << _d0);
+      if (_d0 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d0);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d0);
+      }
     }
     if (c & 0x02)
     {
-      _xset_mask_lo[c] |= (1 << _d1);
+      if (_d1 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d1);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d1);
+      }
     }
     if (c & 0x04)
     {
-      _xset_mask_lo[c] |= (1 << _d2);
+      if (_d2 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d2);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d2);
+      }
     }
     if (c & 0x08)
     {
-      _xset_mask_lo[c] |= (1 << _d3);
+      if (_d3 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d3);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d3);
+      }
     }
     if (c & 0x10)
     {
-      _xset_mask_lo[c] |= (1 << _d4);
+      if (_d4 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d4);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d4);
+      }
     }
     if (c & 0x20)
     {
-      _xset_mask_lo[c] |= (1 << _d5);
+      if (_d5 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d5);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d5);
+      }
     }
     if (c & 0x40)
     {
-      _xset_mask_lo[c] |= (1 << _d6);
+      if (_d6 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d6);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d6);
+      }
     }
     if (c & 0x80)
     {
-      _xset_mask_lo[c] |= (1 << _d7);
+      if (_d7 >= 32)
+      {
+        _xset_mask2_lo[c] |= digitalPinToBitMask(_d7);
+      }
+      else
+      {
+        _xset_mask1_lo[c] |= digitalPinToBitMask(_d7);
+      }
     }
   }
   for (int32_t c = 0; c < 256; c++)
   {
-    _xset_mask_hi[c] = 0;
+    _xset_mask1_hi[c] = 0;
+    _xset_mask2_hi[c] = 0;
     if (c & 0x01)
     {
-      _xset_mask_hi[c] |= (1 << _d8);
+      if (_d8 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d8);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d8);
+      }
     }
     if (c & 0x02)
     {
-      _xset_mask_hi[c] |= (1 << _d9);
+      if (_d9 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d9);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d9);
+      }
     }
     if (c & 0x04)
     {
-      _xset_mask_hi[c] |= (1 << _d10);
+      if (_d10 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d10);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d10);
+      }
     }
     if (c & 0x08)
     {
-      _xset_mask_hi[c] |= (1 << _d11);
+      if (_d11 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d11);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d11);
+      }
     }
     if (c & 0x10)
     {
-      _xset_mask_hi[c] |= (1 << _d12);
+      if (_d12 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d12);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d12);
+      }
     }
     if (c & 0x20)
     {
-      _xset_mask_hi[c] |= (1 << _d13);
+      if (_d13 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d13);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d13);
+      }
     }
     if (c & 0x40)
     {
-      _xset_mask_hi[c] |= (1 << _d14);
+      if (_d14 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d14);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d14);
+      }
     }
     if (c & 0x80)
     {
-      _xset_mask_hi[c] |= (1 << _d15);
+      if (_d15 >= 32)
+      {
+        _xset_mask2_hi[c] |= digitalPinToBitMask(_d15);
+      }
+      else
+      {
+        _xset_mask1_hi[c] |= digitalPinToBitMask(_d15);
+      }
     }
   }
-  _dataPortSet = (PORTreg_t)&GPIO.out_w1ts;
-  _dataPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  *_dataPortClr = _dataClrMask;
+  GPIO.out_w1tc = _data1ClrMask;
+  GPIO.out1_w1tc.val = _data2ClrMask;
 }
 
 void Arduino_ESP32PAR16::beginWrite()
@@ -213,9 +431,7 @@ void Arduino_ESP32PAR16::writeCommand16(uint16_t c)
 {
   DC_LOW();
 
-  _data16.value = c;
-  WRITE(_data16.msb);
-  WRITE(_data16.lsb);
+  WRITE16(c);
 
   DC_HIGH();
 }
@@ -233,9 +449,12 @@ void Arduino_ESP32PAR16::write16(uint16_t d)
 void Arduino_ESP32PAR16::writeRepeat(uint16_t p, uint32_t len)
 {
   _data16.value = p;
-  uint32_t d = _xset_mask_hi[_data16.msb] | _xset_mask_lo[_data16.lsb];
-  *_dataPortClr = _dataClrMask;
-  *_dataPortSet = d;
+  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
+  uint32_t d2 = _xset_mask2_hi[_data16.msb] | _xset_mask2_lo[_data16.lsb];
+  GPIO.out_w1tc = _data1ClrMask;
+  GPIO.out1_w1tc.val = _data2ClrMask;
+  GPIO.out_w1ts = d1;
+  GPIO.out1_w1ts.val = d2;
   while (len--)
   {
     *_wrPortClr = _wrPinMask;
@@ -247,8 +466,7 @@ void Arduino_ESP32PAR16::writePixels(uint16_t *data, uint32_t len)
 {
   while (len--)
   {
-    uint16_t d = *data++;
-    WRITE16(d);
+    WRITE16(*data++);
   }
 }
 
@@ -329,8 +547,10 @@ void Arduino_ESP32PAR16::writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, 
   while (len--)
   {
     _data16.value = idx[*data++];
-    *_dataPortClr = _dataClrMask;
-    *_dataPortSet = _xset_mask_hi[_data16.msb] | _xset_mask_lo[_data16.lsb];
+    GPIO.out_w1tc = _data1ClrMask;
+    GPIO.out1_w1tc.val = _data2ClrMask;
+    GPIO.out_w1ts = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
+    GPIO.out1_w1ts.val = _xset_mask2_hi[_data16.msb] | _xset_mask2_lo[_data16.lsb];
     *_wrPortClr = _wrPinMask;
     *_wrPortSet = _wrPinMask;
     *_wrPortClr = _wrPinMask;
@@ -340,17 +560,23 @@ void Arduino_ESP32PAR16::writeIndexedPixelsDouble(uint8_t *data, uint16_t *idx, 
 
 INLINE void Arduino_ESP32PAR16::WRITE(uint8_t d)
 {
-  *_dataPortClr = _dataClrMask;
-  *_dataPortSet = _xset_mask_lo[d];
+  GPIO.out_w1tc = _data1ClrMask;
+  GPIO.out1_w1tc.val = _data2ClrMask;
+  GPIO.out_w1ts = _xset_mask1_lo[d];
+  GPIO.out1_w1ts.val = _xset_mask2_lo[d];
   *_wrPortClr = _wrPinMask;
   *_wrPortSet = _wrPinMask;
 }
 
 INLINE void Arduino_ESP32PAR16::WRITE16(uint16_t d)
 {
-  *_dataPortClr = _dataClrMask;
   _data16.value = d;
-  *_dataPortSet = _xset_mask_hi[_data16.msb] | _xset_mask_lo[_data16.lsb];
+  uint32_t d1 = _xset_mask1_hi[_data16.msb] | _xset_mask1_lo[_data16.lsb];
+  uint32_t d2 = _xset_mask2_hi[_data16.msb] | _xset_mask2_lo[_data16.lsb];
+  GPIO.out_w1tc = _data1ClrMask;
+  GPIO.out1_w1tc.val = _data2ClrMask;
+  GPIO.out_w1ts = d1;
+  GPIO.out1_w1ts.val = d2;
   *_wrPortClr = _wrPinMask;
   *_wrPortSet = _wrPinMask;
 }
@@ -369,12 +595,18 @@ INLINE void Arduino_ESP32PAR16::DC_LOW(void)
 
 INLINE void Arduino_ESP32PAR16::CS_HIGH(void)
 {
-  *_csPortSet = _csPinMask;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPortSet = _csPinMask;
+  }
 }
 
 INLINE void Arduino_ESP32PAR16::CS_LOW(void)
 {
-  *_csPortClr = _csPinMask;
+  if (_cs != GFX_NOT_DEFINED)
+  {
+    *_csPortClr = _csPinMask;
+  }
 }
 
-#endif // #if (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2)
+#endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32 || CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)

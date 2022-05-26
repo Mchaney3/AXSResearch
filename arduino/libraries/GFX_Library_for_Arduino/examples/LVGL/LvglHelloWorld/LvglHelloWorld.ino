@@ -1,32 +1,49 @@
 /*******************************************************************************
  * LVGL Hello World
- * This is a simple examplle for LVGL - Light and Versatile Graphics Library
+ * This is a simple example for LVGL - Light and Versatile Graphics Library
+ * import from: https://github.com/lvgl/lv_demos.git
  *
  * Dependent libraries:
  * LVGL: https://github.com/lvgl/lvgl.git
+ *
+ * LVGL Configuration file:
+ * Copy your_arduino_path/libraries/lvgl/lv_conf_template.h
+ * to your_arduino_path/libraries/lv_conf.h
+ * Then find and set:
+ * #define LV_COLOR_DEPTH     16
+ * #define LV_TICK_CUSTOM     1
+ * 
+ * For SPI display set color swap can be faster, parallel screen don't set!
+ * #define LV_COLOR_16_SWAP   1
+ * 
+ * Optional: Show CPU usage and FPS count
+ * #define LV_USE_PERF_MONITOR 1
  ******************************************************************************/
 #include <lvgl.h>
 
 /*******************************************************************************
  * Start of Arduino_GFX setting
- * 
+ *
  * Arduino_GFX try to find the settings depends on selected board in Arduino IDE
  * Or you can define the display dev kit not in the board list
  * Defalult pin list for non display dev kit:
- * Arduino Nano, Micro and more: TFT_CS:  9, TFT_DC:  8, TFT_RST:  7, TFT_BL:  6
- * ESP32 various dev board     : TFT_CS:  5, TFT_DC: 27, TFT_RST: 33, TFT_BL: 22
- * ESP32-C3 various dev board  : TFT_CS:  7, TFT_DC:  2, TFT_RST:  1, TFT_BL:  3
- * ESP32-S2 various dev board  : TFT_CS: 34, TFT_DC: 26, TFT_RST: 33, TFT_BL: 21
- * ESP8266 various dev board   : TFT_CS: 15, TFT_DC:  4, TFT_RST:  2, TFT_BL:  5
- * Raspberry Pi Pico dev board : TFT_CS: 17, TFT_DC: 27, TFT_RST: 26, TFT_BL: 28
- * RTL8720 BW16 old patch core : TFT_CS: 18, TFT_DC: 17, TFT_RST:  2, TFT_BL: 23
- * RTL8720_BW16 Official core  : TFT_CS:  9, TFT_DC:  8, TFT_RST:  6, TFT_BL:  3
- * RTL8722 dev board           : TFT_CS: 18, TFT_DC: 17, TFT_RST: 22, TFT_BL: 23
- * RTL8722_mini dev board      : TFT_CS: 12, TFT_DC: 14, TFT_RST: 15, TFT_BL: 13
- * Seeeduino XIAO dev board    : TFT_CS:  3, TFT_DC:  2, TFT_RST:  1, TFT_BL:  0
- * Teensy 4.1 dev board        : TFT_CS: 39, TFT_DC: 41, TFT_RST: 40, TFT_BL: 22
+ * Arduino Nano, Micro and more: CS:  9, DC:  8, RST:  7, BL:  6
+ * ESP32 various dev board     : CS:  5, DC: 27, RST: 33, BL: 22
+ * ESP32-C3 various dev board  : CS:  7, DC:  2, RST:  1, BL:  3
+ * ESP32-S2 various dev board  : CS: 34, DC: 35, RST: 33, BL: 21
+ * ESP32-S3 various dev board  : CS: 40, DC: 41, RST: 42, BL: 48
+ * ESP8266 various dev board   : CS: 15, DC:  4, RST:  2, BL:  5
+ * Raspberry Pi Pico dev board : CS: 17, DC: 27, RST: 26, BL: 28
+ * RTL8720 BW16 old patch core : CS: 18, DC: 17, RST:  2, BL: 23
+ * RTL8720_BW16 Official core  : CS:  9, DC:  8, RST:  6, BL:  3
+ * RTL8722 dev board           : CS: 18, DC: 17, RST: 22, BL: 23
+ * RTL8722_mini dev board      : CS: 12, DC: 14, RST: 15, BL: 13
+ * Seeeduino XIAO dev board    : CS:  3, DC:  2, RST:  1, BL:  0
+ * Teensy 4.1 dev board        : CS: 39, DC: 41, RST: 40, BL: 22
  ******************************************************************************/
 #include <Arduino_GFX_Library.h>
+
+#define GFX_BL DF_GFX_BL // default backlight pin, you may replace DF_GFX_BL to actual backlight pin
 
 /* More dev device declaration: https://github.com/moononournation/Arduino_GFX/wiki/Dev-Device-Declaration */
 #if defined(DISPLAY_DEV_KIT)
@@ -37,7 +54,7 @@ Arduino_GFX *gfx = create_default_Arduino_GFX();
 Arduino_DataBus *bus = create_default_Arduino_DataBus();
 
 /* More display class: https://github.com/moononournation/Arduino_GFX/wiki/Display-Class */
-Arduino_GFX *gfx = new Arduino_ILI9341(bus, TFT_RST, 0 /* rotation */, false /* IPS */);
+Arduino_GFX *gfx = new Arduino_ILI9341(bus, DF_GFX_RST, 0 /* rotation */, false /* IPS */);
 
 #endif /* !defined(DISPLAY_DEV_KIT) */
 /*******************************************************************************
@@ -57,7 +74,11 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
    uint32_t w = (area->x2 - area->x1 + 1);
    uint32_t h = (area->y2 - area->y1 + 1);
 
+#if (LV_COLOR_16_SWAP != 0)
    gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+#else
+   gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+#endif
 
    lv_disp_flush_ready(disp);
 }
@@ -72,16 +93,20 @@ void setup()
    gfx->begin();
    gfx->fillScreen(BLACK);
 
-#ifdef TFT_BL
-   pinMode(TFT_BL, OUTPUT);
-   digitalWrite(TFT_BL, HIGH);
+#ifdef GFX_BL
+   pinMode(GFX_BL, OUTPUT);
+   digitalWrite(GFX_BL, HIGH);
 #endif
 
    lv_init();
 
    screenWidth = gfx->width();
    screenHeight = gfx->height();
+#ifdef ESP32
+   disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t) * screenWidth * 10, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+#else
    disp_draw_buf = (lv_color_t *)malloc(sizeof(lv_color_t) * screenWidth * 10);
+#endif
    if (!disp_draw_buf)
    {
       Serial.println("LVGL disp_draw_buf allocate failed!");

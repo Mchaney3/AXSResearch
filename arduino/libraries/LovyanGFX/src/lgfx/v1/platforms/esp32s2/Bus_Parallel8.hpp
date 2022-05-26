@@ -17,10 +17,10 @@ Contributors:
 /----------------------------------------------------------------------------*/
 #pragma once
 
-#if __has_include(<esp32/rom/lldesc.h>)
- #include <esp32/rom/lldesc.h>
-#else
+#if __has_include(<rom/lldesc.h>)
  #include <rom/lldesc.h>
+#else
+ #include <esp32/rom/lldesc.h>
 #endif
 
 #if __has_include(<freertos/FreeRTOS.h>)
@@ -80,6 +80,8 @@ namespace lgfx
     void endTransaction(void) override;
     void wait(void) override;
     bool busy(void) const override;
+    uint32_t getClock(void) const override { return _cfg.freq_write; }
+    void setClock(uint32_t freq) override { if (_cfg.freq_write != freq) { _cfg.freq_write = freq; config(_cfg); } }
 
     void flush(void) override;
     bool writeCommand(uint32_t data, uint_fast8_t bit_length) override;
@@ -122,7 +124,7 @@ namespace lgfx
     static constexpr size_t CACHE_SIZE = 132;
 
     config_t _cfg;
-    SimpleBuffer _flip_buffer;
+    FlipBuffer _flip_buffer;
     size_t _div_num;
     size_t _cache_index;
     uint16_t _cache[2][CACHE_SIZE];
@@ -140,7 +142,6 @@ namespace lgfx
     uint32_t _mask_reg_dc = 0;
     bool _direct_dc;
 
-    uint32_t _last_freq_apb;
     uint32_t _clkdiv_write;
     volatile void *_dev;
 

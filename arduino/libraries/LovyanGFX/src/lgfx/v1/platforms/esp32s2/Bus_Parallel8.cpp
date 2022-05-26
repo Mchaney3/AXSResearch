@@ -32,10 +32,6 @@ namespace lgfx
  {
 //----------------------------------------------------------------------------
 
-#ifndef I2S_CLKA_ENA
-#define I2S_CLKA_ENA  (BIT(22)) // clk_sel = 2
-#endif
-
   static constexpr size_t CACHE_THRESH = 128;
 
   // static constexpr uint32_t _conf_reg_default = I2S_TX_MSB_RIGHT | I2S_TX_RIGHT_FIRST | I2S_RX_RIGHT_FIRST | I2S_TX_DMA_EQUAL;
@@ -67,24 +63,38 @@ namespace lgfx
     _mask_reg_dc = (cfg.pin_rs < 0) ? 0 : (1ul << (cfg.pin_rs & 31));
     _gpio_reg_dc[0] = get_gpio_lo_reg(cfg.pin_rs);
     _gpio_reg_dc[1] = get_gpio_hi_reg(cfg.pin_rs);
-    _last_freq_apb = 0;
+
+    // clock = 80MHz(PLL160 / 2)
+    static constexpr uint32_t pll_160M_clock_d2 = 160 * 1000 * 1000 >> 1;
+
+    // I2S_CLKM_DIV_NUM 2=40MHz  /  3=27MHz  /  4=20MHz  /  5=16MHz  /  8=10MHz  /  10=8MHz
+    _div_num = std::min(255u, 1 + ((pll_160M_clock_d2) / (1 + _cfg.freq_write)));
+
+    _clkdiv_write = I2S_CLK_160M_PLL << I2S_CLK_SEL_S
+                  |             I2S_CLK_EN
+                  |        1 << I2S_CLKM_DIV_A_S
+                  |        0 << I2S_CLKM_DIV_B_S
+                  | _div_num << I2S_CLKM_DIV_NUM_S
+                  ;
+  }
+
+  static void _gpio_pin_init(int pin)
+  {
+    if (pin >= 0)
+    {
+      gpio_pad_select_gpio(pin);
+      gpio_hi(pin);
+      gpio_set_direction((gpio_num_t)pin, GPIO_MODE_OUTPUT);
+    }
   }
 
   bool Bus_Parallel8::init(void)
   {
     _init_pin();
 
-    gpio_pad_select_gpio(_cfg.pin_rd);
-    gpio_pad_select_gpio(_cfg.pin_wr);
-    gpio_pad_select_gpio(_cfg.pin_rs);
-
-    gpio_hi(_cfg.pin_rd);
-    gpio_hi(_cfg.pin_wr);
-    gpio_hi(_cfg.pin_rs);
-
-    gpio_set_direction((gpio_num_t)_cfg.pin_rd, GPIO_MODE_OUTPUT);
-    gpio_set_direction((gpio_num_t)_cfg.pin_wr, GPIO_MODE_OUTPUT);
-    gpio_set_direction((gpio_num_t)_cfg.pin_rs, GPIO_MODE_OUTPUT);
+    _gpio_pin_init(_cfg.pin_rd);
+    _gpio_pin_init(_cfg.pin_wr);
+    _gpio_pin_init(_cfg.pin_rs);
 
     auto idx_base = I2S0O_DATA_OUT15_IDX;
 
@@ -172,24 +182,8 @@ namespace lgfx
 
   void Bus_Parallel8::beginTransaction(void)
   {
-    uint32_t freq_apb = getApbFrequency();
-    if (_last_freq_apb != freq_apb)
-    {
-      _last_freq_apb = freq_apb;
-      // clock = 80MHz(apb_freq) / I2S_CLKM_DIV_NUM
-      // I2S_CLKM_DIV_NUM 2=40MHz  /  3=27MHz  /  4=20MHz  /  5=16MHz  /  8=10MHz  /  10=8MHz
-      _div_num = std::min(255u, 1 + (freq_apb / (1 + _cfg.freq_write)));
-
-      _clkdiv_write =             I2S_CLKA_ENA
-                    |             I2S_CLK_EN
-                    |        1 << I2S_CLKM_DIV_A_S
-                    |        0 << I2S_CLKM_DIV_B_S
-                    | _div_num << I2S_CLKM_DIV_NUM_S
-                    ;
-    }
-    *reg(I2S_CLKM_CONF_REG(_cfg.i2s_port)) = _clkdiv_write;
-
     auto i2s_dev = (i2s_dev_t*)_dev;
+    i2s_dev->clkm_conf.val = _clkdiv_write;
     i2s_dev->out_link.val = 0;
     i2s_dev->sample_rate_conf.val = _sample_rate_conf_reg_16bit;
     i2s_dev->fifo_conf.val = _fifo_conf_dma;
@@ -253,6 +247,8 @@ namespace lgfx
 
   size_t Bus_Parallel8::_flush(size_t count, bool dc)
   {
+    bool slow = _div_num > 8;
+
     auto i2s_dev = (i2s_dev_t*)_dev;
     if (i2s_dev->out_link.val)
     {
@@ -288,6 +284,11 @@ namespace lgfx
     i2s_dev->conf.val = _conf_reg_start;
 
     _cache_flip = (_cache_flip == _cache[0]) ? _cache[1] : _cache[0];
+    if (slow)
+    {
+      size_t wait = _div_num >> 1;
+      do { __asm__ __volatile__ ("nop"); } while (--wait);
+    }
     return 0;
   }
 
@@ -394,7 +395,7 @@ namespace lgfx
     }
     const uint32_t bytes = param->dst_bits >> 3;
     auto fp_copy = param->fp_copy;
-    const uint32_t limit = CACHE_SIZE / bytes;
+    const uint32_t limit = (CACHE_THRESH * sizeof(_cache[0][0])) / bytes;
     uint8_t len = length % limit;
     if (len)
     {
@@ -431,7 +432,7 @@ namespace lgfx
       }
       else
       {
-        size_t len = ((length - 1) % CACHE_SIZE) + 1;
+        size_t len = ((length - 1) % (CACHE_THRESH * sizeof(_cache[0][0]))) + 1;
         length -= len;
         memcpy(_cache_flip, data, len);
         data += len;

@@ -93,6 +93,8 @@ NimBLEClient::~NimBLEClient() {
         delete m_pClientCallbacks;
     }
 
+    ble_npl_callout_deinit(&m_dcTimer);
+
 } // ~NimBLEClient
 
 
@@ -594,7 +596,11 @@ NimBLERemoteService* NimBLEClient::getService(const NimBLEUUID &uuid) {
         {
             NimBLEUUID uuid128(uuid);
             uuid128.to128();
-            return getService(uuid128);
+            if(retrieveServices(&uuid128)) {
+                if(m_servicesVector.size() > prev_size) {
+                    return m_servicesVector.back();
+                }
+            }
         } else {
             // If the request was successful but the 128 bit uuid not found
             // try again with the 16 bit uuid.
@@ -602,7 +608,11 @@ NimBLERemoteService* NimBLEClient::getService(const NimBLEUUID &uuid) {
             uuid16.to16();
             // if the uuid was 128 bit but not of the BLE base type this check will fail
             if (uuid16.bitSize() == BLE_UUID_TYPE_16) {
-                return getService(uuid16);
+                if(retrieveServices(&uuid16)) {
+                    if(m_servicesVector.size() > prev_size) {
+                        return m_servicesVector.back();
+                    }
+                }
             }
         }
     }
@@ -636,13 +646,29 @@ std::vector<NimBLERemoteService*>* NimBLEClient::getServices(bool refresh) {
 
 /**
  * @brief Retrieves the full database of attributes that the peripheral has available.
+ * @return True if successful.
  */
-void NimBLEClient::discoverAttributes() {
-    for(auto svc: *getServices(true)) {
-        for(auto chr: *svc->getCharacteristics(true)) {
-            chr->getDescriptors(true);
+bool NimBLEClient::discoverAttributes() {
+    deleteServices();
+
+    if (!retrieveServices()){
+        return false;
+    }
+
+
+    for(auto svc: m_servicesVector) {
+        if (!svc->retrieveCharacteristics()) {
+            return false;
+        }
+
+        for(auto chr: svc->m_characteristicVector) {
+            if (!chr->retrieveDescriptors()) {
+                return false;
+            }
         }
     }
+
+    return true;
 } // discoverAttributes
 
 
@@ -734,7 +760,7 @@ int NimBLEClient::serviceDiscoveredCB(
     if(error->status == BLE_HS_EDONE) {
         pTaskData->rc = 0;
     } else {
-        NIMBLE_LOGE(LOG_TAG, "characteristicDiscCB() rc=%d %s",
+        NIMBLE_LOGE(LOG_TAG, "serviceDiscoveredCB() rc=%d %s",
                              error->status,
                              NimBLEUtils::returnCodeToString(error->status));
         pTaskData->rc = error->status;
@@ -742,7 +768,7 @@ int NimBLEClient::serviceDiscoveredCB(
 
     xTaskNotifyGive(pTaskData->task);
 
-    NIMBLE_LOGD(LOG_TAG,"<< << Service Discovered");
+    NIMBLE_LOGD(LOG_TAG,"<< Service Discovered");
     return error->status;
 }
 
@@ -767,7 +793,7 @@ std::string NimBLEClient::getValue(const NimBLEUUID &serviceUUID, const NimBLEUU
         }
     }
 
-    NIMBLE_LOGD(LOG_TAG, "<<getValue");
+    NIMBLE_LOGD(LOG_TAG, "<< getValue");
     return ret;
 } // getValue
 

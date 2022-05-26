@@ -1,6 +1,6 @@
 #include "Arduino_DataBus.h"
 
-#if CONFIG_IDF_TARGET_ESP32S2
+#if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
 
 #ifndef _ARDUINO_ESP32S2PAR16_H_
 #define _ARDUINO_ESP32S2PAR16_H_
@@ -52,10 +52,6 @@ private:
   PORTreg_t _wrPortClr; ///< PORT register CLEAR
   uint32_t _wrPinMask;  ///< Bitmask
 
-  PORTreg_t _rdPortSet; ///< PORT register SET
-  PORTreg_t _rdPortClr; ///< PORT register CLEAR
-  uint32_t _rdPinMask;  ///< Bitmask
-
   PORTreg_t _dataPortSet; ///< PORT register SET
   PORTreg_t _dataPortClr; ///< PORT register CLEAR
   uint32_t _dataClrMask;
@@ -63,4 +59,4 @@ private:
 
 #endif // _ARDUINO_ESP32S2PAR16_H_
 
-#endif // #if CONFIG_IDF_TARGET_ESP32S2
+#endif // #if defined(ESP32) && (CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3)
